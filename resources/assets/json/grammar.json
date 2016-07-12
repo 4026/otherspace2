@@ -1,0 +1,361 @@
+{
+  "regionNameOrigin" : ["The #regionAdjective.capitalise# #regionNoun.capitalise#" ],
+  "locationTextOrigin":["#signalStrengthParagraph#\n\n#regionParagraph#"],
+  "timeOrigin":["Right now, in #regionName#, #event#.\n\n#scanParagraph#"],
+
+  "regionAdjective": [
+    "frozen",
+    "forgotten",
+    "wistful",
+    "nostalgic",
+    "wailing",
+    "windswept",
+    "misty",
+    "blasted",
+    "dusky",
+    "tear-stained",
+    "solitary",
+    "howling",
+    "hungry",
+    "cantankerous",
+    "silent",
+    "infinite",
+    "long",
+    "longing",
+    "obsidian",
+    "ivory",
+    "alabaster",
+    "broken",
+    "shattered",
+    "brimstone",
+    "sulphurous",
+    "mercurial",
+    "indigo",
+    "shifting",
+    "#person1.capitalise#-#person2.capitalise#'s"
+  ],
+  "regionNoun": [
+    "crater",
+    "ocean",
+    "spires",
+    "sands",
+    "wastes",
+    "swamp",
+    "void",
+    "sea",
+    "pool",
+    "depths",
+    "cavern",
+    "pit",
+    "tree",
+    "hollow",
+    "scar",
+    "henge",
+    "barrow",
+    "marsh",
+    "moor",
+    "causeway",
+    "roost",
+    "ruins",
+    "plateau",
+    "groves"
+  ],
+  "person1" : [
+    "night",
+    "dream",
+    "chaos"
+  ],
+  "person2" : [
+    "scryer",
+    "seer",
+    "father",
+    "mother",
+    "bringer",
+    "maker",
+    "eater"
+  ],
+
+
+
+  "signalStrengthParagraph" : [ "Here, the otherspace is #signalStrength#." ],
+  "signalStrength" : [
+    "but a distant, scratching whisper",
+    "barely perceptible",
+    "only strong enough to be regarded through a thaumoscope",
+    "influencing our reality in subtle ways, such as that #weirdThing#",
+    "discernable, if you know what to look for. For example, you might notice #weirdThing.a#",
+    "almost tangible. Be on the lookout for #weirdThing.a#",
+    "dangerously congruent to our reality. Beware of #weirdThing.s# or #weirdThing.s#"
+  ],
+  "weirdThing" : [
+    {"normal" : "faint #sensation# of #weirdSmell#", "s" :"a faint #sensation# of #weirdSmell#"},
+    {"normal" : "feeling of #weirdFeeling#", "s" :"a feeling of #weirdFeeling#"},
+    {
+      "normal" : "#weirdAdjective# #weirdNoun#",
+      "a" : "#weirdAdjective.a# #weirdNoun#",
+      "s" :"#weirdAdjective# #weirdNoun.s#"
+    },
+    {
+      "normal" : "#weirdPersonAdjective# #weirdPersonNoun# with #weirdPersonAccoutrement.a#",
+      "s" :"#weirdPersonAdjective# #weirdPersonNoun.s# with #weirdPersonAccoutrement.s#"
+    }
+  ],
+  "sensation" : ["smell", "reek", "stench", "taste"],
+  "weirdSmell" : ["burning hair", "decay", "almonds", "bile", "sweat", "rust", "sulphur"],
+  "weirdFeeling": [
+    "nausea",
+    "vertigo",
+    "being watched",
+    "nagging guilt",
+    "having forgotten something important",
+    "loss"
+  ],
+  "weirdAdjective" : ["well-disguised", "menacing", "unusual", "out-of-place"],
+  "weirdNoun" : ["aerial", "tower", "doorway", "cloud", "rumble", "hum"],
+  "weirdPersonAdjective" : ["crying", "mumbling", "muttering", "giggling", "whistling", "hurrying", "cackling"],
+  "weirdPersonNoun": [
+    { "normal" : "man", "s" : "men" },
+    { "normal" : "woman", "s" : "women" },
+    "boy",
+    "girl",
+    "crone",
+    "youth",
+    {"normal" : "policeman", "s" : "policemen" },
+    "driver"
+  ],
+  "weirdPersonAccoutrement": ["frosty smile",
+    {"normal": "bloodshot eyes", "s": "bloodshot eyes"},
+    {"normal": "dark glasses", "s": "dark glasses"},
+    "monocle",
+    "capacious bag",
+    "hunted expression",
+    "limp",
+    "musical instrument",
+    "sour demeanor"
+  ],
+
+  "regionParagraph": [
+    "Your current location in the real world connects to the otherspace region that roughly translates as #regionName#. #regionDescription#."
+  ],
+  "regionDescription" : [
+    "The area is dotted with #terrainFeatureAdjective# #terrainFeature.s#, with the occasional #terrainFeature#",
+    "The dominant feature of #regionName# is a #terrainFeatureAdjective# #terrainFeature#, surrounded by #terrainFeature.s#",
+    "The area is featureless, save for a single #terrainFeatureAdjective# #terrainFeature#"
+  ],
+  "terrainFeatureAdjective" : [
+    "small",
+    "large",
+    "gigantic",
+    "tiny"
+  ],
+  "terrainFeature" : [
+    {"normal" : "ruined #ruinType#", "s" : "ruined #ruinType.s#"},
+    "stalagmite",
+    "gaping pit",
+    "ritual circle",
+    "spore",
+    "stalagmite",
+    "burrow",
+    "discarded exoskeleton",
+    "husk",
+    "egg-sac"
+  ],
+  "ruinType" : [
+    "hovel",
+    {"normal" : "fortress", "s" : "fortresses"},
+    {"normal" : "arch", "s" : "arches"},
+    "shrine",
+    "refuge",
+    "ziggurat"
+  ],
+
+  "scanParagraph" : [
+    "#testType.capitalize# picked up #testImplication#.",
+    "#testType.capitalize# produced no useful results. However, #testType# revealed #testImplication#.",
+    "#testType.capitalize# was aborted due to #environmentalFactor#.\n\n#scanParagraph#"
+  ],
+  "testType" : [ "#testAdjective.capitalize# #testVerb#", "The #testName# Test"],
+  "testAdjective": [
+    "thaumic",
+    "psychic",
+    "ontological",
+    "epistemological",
+    "phenomenological",
+    "entropic",
+    "metagravitational",
+    "null",
+    "imaginative",
+    "metaphorical",
+    "metaphysical",
+    "Euclidian"
+  ],
+  "testVerb": [
+    "Frequency Analysis",
+    "Sampling",
+    "Difference Testing",
+    "Aliasing",
+    "Chromatography",
+    "Threshing",
+    "Condensation"
+  ],
+  "testName" : [
+    "#scientist#",
+    "#scientist#-#scientist#"
+  ],
+  "scientist" : [
+    "Immerman",
+    "Carswell",
+    "Antonov",
+    "Heisenberg",
+    "Gothenburg",
+    "Tesla",
+    "Hemingway",
+    "Euler",
+    "Descartes",
+    "Kant",
+    "Church",
+    "Turing",
+    "Morgan",
+    "Harrison",
+    "Mitchell",
+    "Welles",
+    "Armstrong",
+    "Reynolds",
+    "Shaw",
+    "Hasenkamp",
+    "Dahl",
+    "Feigenbaum",
+    "Dreschner"
+  ],
+  "environmentalFactor" : [
+    "a total lack of #testAdjective# #testResultNoun#",
+    "#levelAdjective# levels of #testAdjective# #testResultNoun#"
+  ],
+  "levelAdjective" : ["high", "low", "overwhelming", "catastrophic", "dangerous"],
+  "testResultNoun" : [ "interference", "noise", "inversion", "residue", "echoes"],
+  "testImplication" : [
+    "#environmentalFactor#, which suggests the presence of #otherspaceLife.a#",
+    "#environmentalFactor#, which suggests the presence of #otherspaceLife.s#"
+  ],
+  "otherspaceLife" : [
+    {
+      "normal" : "#otherspaceLifeAdjective# #otherspaceLifeNoun#",
+      "a" : "#otherspaceLifeAdjective.a# #otherspaceLifeNoun#",
+      "s" : "#otherspaceLifeAdjective# #otherspaceLifeNoun.s#"
+    },
+    {
+      "normal" : "#otherspaceLifeAdjective#, #otherspaceLifeAdjective# #otherspaceLifeNoun#",
+      "a" : "#otherspaceLifeAdjective.a#, #otherspaceLifeAdjective# #otherspaceLifeNoun#",
+      "s" : "#otherspaceLifeAdjective#, #otherspaceLifeAdjective# #otherspaceLifeNoun.s#"
+    }
+  ],
+  "otherspaceLifeAdjective": [
+    "aimless",
+    "screaming",
+    "trapped",
+    "hunting",
+    "hungry",
+    "cruel",
+    "terrified",
+    "enraged",
+    "prowling",
+    "shivering",
+    "haunted",
+    "shrieking",
+    "wounded",
+    "feathered",
+    "pitiable",
+    "chittering",
+    "glistening",
+    "leathery",
+    "wet-lipped",
+    "writhing",
+    "formless"
+  ],
+  "otherspaceLifeNoun": [
+    "mind",
+    "scavenger",
+    "predator",
+    "insect",
+    "amphibian",
+    "muscle sac",
+    {"normal" : "consciousness", "s" : "consciousnesses"},
+    {"normal" : "beast beyond our understanding", "s" : "beasts beyond our understanding"},
+    {"normal" : "echo of a former life", "s" : "echoes of a former life"},
+    "nightmare",
+    {"normal" : "fever-dream from one of our possible futures", "s" : "fever-dreams from one of our possible futures"}
+  ],
+
+
+
+  "event" : [
+    "all is still",
+    "#weather.a# #weatherVerb#",
+    "#combatantNumber# #otherspaceLife.s# #combatantVerb#",
+    "#artefact# #artefactVerb#"
+  ],
+  "weather" : [
+    "chill sandstorm",
+    {"normal" : "The Maelstrom", "a":"The Maelstrom"},
+    "briny monsoon",
+    {"normal" : "fetid air", "a" : "the fetid air"},
+    "clammy fog",
+    "oily mist",
+    "choking stench"
+  ],
+  "weatherVerb" : [
+    "rages #weatherAdverb#",
+    "swirls #weatherAdverb#",
+    "swallows all",
+    "drowns everything",
+    "blots out all light"
+  ],
+  "weatherAdverb" : [
+    "silently",
+    "ceaselessly",
+    "without relent",
+    "thickly",
+    "heavily",
+    "remorselessly"
+  ],
+  "combatantNumber": ["two", "three", "several", "a multitude of", "flocks of", "swarms of"],
+  "combatantVerb": [
+    "grapple for dominance",
+    "circle each other looking for weakness",
+    "watch each other warily",
+    "eviscerate themselves in a fit of madness",
+    "bicker enviously over #artefact#",
+    "cower in terror before #artefact#"
+  ],
+  "artefact" : [
+    "#artefactAdjective.a# #artefactNoun#"
+  ],
+  "artefactAdjective" : [
+    "small",
+    "abandoned",
+    "broken",
+    "ancient",
+    "wind-worn",
+    {"normal" : "once-loved", "a" : "a once-loved"},
+    "corroded",
+    "forgotten"
+  ],
+  "artefactNoun" : [
+    "music box",
+    "pocket watch",
+    "figurine of a bird",
+    "locket",
+    "bone drum",
+    "doll",
+    "glass marble",
+    "bag of teeth",
+    "mask"
+  ],
+  "artefactVerb" : [
+    "emits gentle, haunting music that unpicks the sanity of those that hear it",
+    "is being guarded jealously",
+    "has been washed here by the currents",
+    "is resonating psychically with someone nearby you in the real world",
+    "has been laid out as bait for the unwary"
+  ]
+}

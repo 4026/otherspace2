@@ -158,6 +158,7 @@ return [
         OtherSpace2\Providers\EventServiceProvider::class,
         OtherSpace2\Providers\RouteServiceProvider::class,
 
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
     ],
 
     /*

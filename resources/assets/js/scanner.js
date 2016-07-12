@@ -117,11 +117,15 @@ $(function () {
 
         navigator.geolocation.getCurrentPosition(
             function success(position) {
-                $.post('getStory.php', {lat: position.coords.latitude, long: position.coords.longitude})
+                $.get('/location/' + position.coords.latitude + '/' + position.coords.longitude)
                     .done(processStory)
                 ;
             },
-            function error() { displayError("Unable to discern your location"); },
+            function error() {
+                $.get('/location/51.4623428/-0.1759524')
+                    .done(processStory)
+                ;
+            },
             {
                 enableHighAccuracy: true,
                 maximumAge: 10000,
