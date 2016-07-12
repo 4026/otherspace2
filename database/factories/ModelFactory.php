@@ -11,7 +11,8 @@
 |
 */
 
-$factory->define(OtherSpace2\User::class, function (Faker\Generator $faker) {
+$factory->define(
+    \OtherSpace2\Models\User::class, function (Faker\Generator $faker) {
     return [
         'name' => $faker->name,
         'email' => $faker->safeEmail,

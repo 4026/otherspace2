@@ -2,7 +2,7 @@
 
 namespace OtherSpace2\Http\Controllers\Auth;
 
-use OtherSpace2\User;
+use OtherSpace2\Models\User;
 use Validator;
 use OtherSpace2\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;

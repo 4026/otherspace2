@@ -67,7 +67,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => OtherSpace2\User::class,
+            'model' => \OtherSpace2\Models\User::class,
         ],
 
         // 'users' => [

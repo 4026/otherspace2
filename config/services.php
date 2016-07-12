@@ -34,7 +34,7 @@ return [
     ],
 
     'stripe' => [
-        'model' => OtherSpace2\User::class,
+        'model' => \OtherSpace2\Models\User::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
     ],
