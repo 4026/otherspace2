@@ -11,8 +11,11 @@
 |
 */
 
-Route::get('/', function () {
+Route::get('/', ['middleware' => 'auth', function () {
     return view('index');
-});
+}]);
 
+Route::auth();
+
+Route::get('/home', 'HomeController@index');
 Route::get('/location/{latitude}/{longitude}', 'LocationController@getLocation');
