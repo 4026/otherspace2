@@ -2,15 +2,67 @@
 
 namespace OtherSpace2\Http\Controllers;
 
-use OtherSpace2\Http\Requests;
+
+use Auth;
+use Illuminate\Http\Request;
+use OtherSpace2\Models\Marker;
 use OtherSpace2\Rules\Location;
+
 
 class LocationController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function getLocation($latitude, $longitude)
     {
-        $location = new Location(floatval($latitude), floatval($longitude));
+        $location = Location::getLocationContainingPoint(floatval($latitude), floatval($longitude));
 
-        return response()->json($location);
+        return response()->json(
+            [
+                'player' => ['lat' => $latitude, 'long' => $longitude],
+                'area' => $location
+            ]
+        );
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addMessage(Request $request)
+    {
+        $this->validate(
+            $request,
+            [
+                'latitude'  => 'numeric|required|between:-90,90',
+                'longitude' => 'numeric|required|between:-180,180',
+                'message'   => 'string|required'
+            ]
+        );
+
+        $user = Auth::user();
+
+        //Determine the grid square that this location falls into.
+        $location = Location::getLocationContainingPoint($request->input('latitude'), $request->input('longitude'));
+
+        //Create new marker
+        $marker              = new Marker();
+        $marker->location_id = $location->getModel()->id;
+        $marker->creator_id  = $user->id;
+        $marker->latitude    = $request->input('latitude');
+        $marker->longitude   = $request->input('longitude');
+        $marker->body_text   = $request->input('message');
+        $marker->save();
+
+        return response()->json(['success' => true]);
     }
 }

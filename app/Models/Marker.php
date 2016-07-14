@@ -20,6 +20,10 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Marker whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Marker whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property float $latitude
+ * @property float $longitude
+ * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Marker whereLatitude($value)
+ * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Marker whereLongitude($value)
  */
 class Marker extends Model
 {

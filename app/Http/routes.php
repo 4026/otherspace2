@@ -19,3 +19,4 @@ Route::auth();
 
 Route::get('/home', 'HomeController@index');
 Route::get('/location/{latitude}/{longitude}', 'LocationController@getLocation');
+Route::post('/message', 'LocationController@addMessage');

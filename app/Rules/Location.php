@@ -5,6 +5,7 @@ namespace OtherSpace2\Rules;
 use Four026\Phable\Grammar;
 use Four026\Phable\Node;
 use Four026\Phable\Trace;
+use OtherSpace2\Models\Location as LocationModel;
 
 class Location implements \JsonSerializable
 {
@@ -12,8 +13,16 @@ class Location implements \JsonSerializable
 
     // The difference in degrees between the latitude of the top of the tile and the bottom of the tile.
     const TILE_HEIGHT_DEG = 0.005;
-    private $grammar;
 
+    /**
+     * @var \OtherSpace2\Models\Location
+     */
+    private $model;
+
+    /**
+     * @var Grammar
+     */
+    private $grammar;
     /**
      * @var int
      */
@@ -26,41 +35,61 @@ class Location implements \JsonSerializable
      * @var string
      */
     private $location_name;
-    /**
-     * @var array
-     */
-    private $location_bounds;
-    /**
-     * @var array
-     */
-    private $location;
 
-    public function __construct($latitude, $longitude)
+    public function __construct(LocationModel $model)
     {
-        $this->location = ['lat' => $latitude, 'long' => $longitude];
-
-        //Calculate region bounds
-        $tile_width              = self::TILE_HEIGHT_DEG / cos(deg2rad($latitude));
-        $this->location_bounds   = [];
-        $this->location_bounds[] = [
-            'lat'  => floor($latitude / self::TILE_HEIGHT_DEG) * self::TILE_HEIGHT_DEG,
-            'long' => floor($longitude / $tile_width) * $tile_width
-        ];
-        $this->location_bounds[] = [
-            'lat'  => $this->location_bounds[0]['lat'] + self::TILE_HEIGHT_DEG,
-            'long' => $this->location_bounds[0]['long'] + $tile_width
-        ];
+        $this->model = $model;
 
         //Calculate location and time seeds
         $this->location_seed = intval(
-            (floor($longitude / $tile_width) % 10000) * 10000
-            + floor($latitude / self::TILE_HEIGHT_DEG) % 10000
+            (floor($model->min_longitude / self::getTileWidthAtLatitude($model->min_latitude)) % 10000) * 10000
+            + floor($model->min_latitude / self::TILE_HEIGHT_DEG) % 10000
         );
         $this->time_seed     = intval(floor(time() / 3600)) + $this->location_seed;
 
         //Load grammar
         $this->grammar = new Grammar(base_path(self::GRAMMAR_PATH));
         $this->grammar->addNode('regionName', new Node($this->getLocationName()));
+    }
+
+    /**
+     * @param float $latitude
+     * @param float $longitude
+     *
+     * @return Location
+     */
+    public static function getLocationContainingPoint($latitude, $longitude)
+    {
+        //Fetch model from the DB...
+        $location_model = LocationModel::query()
+            ->where('min_latitude', '<=', $latitude)
+            ->where('max_latitude', '>', $latitude)
+            ->where('min_longitude', '<=', $longitude)
+            ->where('max_longitude', '>', $longitude)
+            ->first();
+
+        if ($location_model != null) {
+            return new Location($location_model);
+        }
+
+        //...or create it if it doesn't exist yet.
+        $location_model = new LocationModel();
+
+        //Calculate region bounds
+        $location_model->min_latitude = floor($latitude / self::TILE_HEIGHT_DEG) * self::TILE_HEIGHT_DEG;
+        $location_model->max_latitude = $location_model->min_latitude + self::TILE_HEIGHT_DEG;
+
+        $tile_width                    = self::getTileWidthAtLatitude($latitude);
+        $location_model->min_longitude = floor($longitude / $tile_width) * $tile_width;
+        $location_model->max_longitude = $location_model->min_longitude + $tile_width;
+
+        //Determine region name
+        $location_rules = new Location($location_model);
+        $location_model->name = $location_rules->getLocationName();
+
+        $location_model->save();
+
+        return $location_rules;
     }
 
     /**
@@ -117,11 +146,37 @@ class Location implements \JsonSerializable
     function jsonSerialize()
     {
         return [
-            'location'        => $this->location,
-            'location_bounds' => $this->location_bounds,
+            'location_bounds' => [
+                ['lat' => $this->model->min_latitude, 'long' => $this->model->min_longitude],
+                ['lat' => $this->model->max_latitude, 'long' => $this->model->max_longitude],
+            ],
             'locationName'    => $this->getLocationName(),
             'locationText'    => explode("\n\n", $this->getLocationText()),
-            'timeText'        => explode("\n\n", $this->getTimeText())
+            'timeText'        => explode("\n\n", $this->getTimeText()),
+            'messages'        => $this->getMessages()
         ];
+    }
+
+    public function getMessages()
+    {
+        return $this->model->markers;
+    }
+
+    /**
+     * @return LocationModel
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * @param $latitude
+     *
+     * @return float
+     */
+    public static function getTileWidthAtLatitude($latitude)
+    {
+        return self::TILE_HEIGHT_DEG / cos(deg2rad($latitude));
     }
 }

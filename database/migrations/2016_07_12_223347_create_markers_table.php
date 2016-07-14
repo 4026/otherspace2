@@ -16,6 +16,8 @@ class CreateMarkersTable extends Migration
             $table->increments('id');
             $table->integer('location_id')->unsigned();
             $table->integer('creator_id')->unsigned();
+            $table->decimal('latitude', 8, 5);
+            $table->decimal('longitude', 8, 5);
             $table->text('body_text');
             $table->timestamps();
 

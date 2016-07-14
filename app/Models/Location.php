@@ -27,5 +27,18 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Location extends Model
 {
-    //
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['min_latitude', 'max_latitude', 'min_longitude', 'max_longitude', 'name'];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function markers()
+    {
+        return $this->hasMany('OtherSpace2\Models\Marker');
+    }
 }
