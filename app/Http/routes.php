@@ -11,12 +11,12 @@
 |
 */
 
-Route::get('/', ['middleware' => 'auth', function () {
-    return view('index');
-}]);
-
+// Laravel standard auth routes
 Route::auth();
 
-Route::get('/home', 'HomeController@index');
-Route::get('/location/{latitude}/{longitude}', 'LocationController@getLocation');
+//Homepage
+Route::get('/', 'HomeController@index');
+
+//AJAX calls
+Route::get('/location', 'LocationController@getLocation');
 Route::post('/message', 'LocationController@addMessage');

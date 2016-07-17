@@ -12,7 +12,9 @@ var elixir = require('laravel-elixir');
  */
 
 elixir(function(mix) {
-    mix.styles('scanner.css');
+    mix.styles('app.css');
 
-    mix.scripts('scanner.js');
+    mix.scripts('app.js');
+
+    mix.version(['css/app.css', 'js/app.js']);
 });

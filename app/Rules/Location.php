@@ -147,8 +147,8 @@ class Location implements \JsonSerializable
     {
         return [
             'location_bounds' => [
-                ['lat' => $this->model->min_latitude, 'long' => $this->model->min_longitude],
-                ['lat' => $this->model->max_latitude, 'long' => $this->model->max_longitude],
+                ['lat' => floatval($this->model->min_latitude), 'long' => floatval($this->model->min_longitude)],
+                ['lat' => floatval($this->model->max_latitude), 'long' => floatval($this->model->max_longitude)],
             ],
             'locationName'    => $this->getLocationName(),
             'locationText'    => explode("\n\n", $this->getLocationText()),

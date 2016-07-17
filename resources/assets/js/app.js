@@ -8,28 +8,27 @@ var MAPTYPE_ID = 'otherspace_style';
  * Process story data returned from the server.
  * @param data
  */
-function processStory(data)
-{
+function processStory(data) {
     $('#p_loadingSpinner').addClass('hidden');
     $('#div_output').removeClass('hidden').hide().fadeIn("slow");
 
     var $location_panel_body = $('#panel_location').children('.panel-body').empty();
     var $time_panel_body = $('#panel_time').children('.panel-body').empty();
 
-    data['locationText'].forEach(function (paragraph) {
+    data['area']['locationText'].forEach(function (paragraph) {
         $('<p>').text(paragraph).appendTo($location_panel_body);
     });
 
-    data['timeText'].forEach(function (paragraph) {
+    data['area']['timeText'].forEach(function (paragraph) {
         $('<p>').text(paragraph).appendTo($time_panel_body);
     });
 
     //Draw google map
     var map = new google.maps.Map(document.getElementById('map-canvas'), {
         zoom: 15,
-        center: {lat: data.location.lat, lng: data.location.long},
+        center: {lat: data.player.lat, lng: data.player.long},
         mapTypeControl: false,
-        mapTypeControlOptions: { mapTypeIds: [MAPTYPE_ID] },
+        mapTypeControlOptions: {mapTypeIds: [MAPTYPE_ID]},
         mapTypeId: MAPTYPE_ID,
         streetViewControl: false
     });
@@ -37,22 +36,22 @@ function processStory(data)
     var featureOpts = [
         {
             stylers: [
-                { hue: '#110066' },
-                { visibility: 'simplified' },
-                { gamma: 0.2 },
-                { weight: 0.5 }
+                {hue: '#110066'},
+                {visibility: 'simplified'},
+                {gamma: 0.2},
+                {weight: 0.5}
             ]
         },
         {
             elementType: 'labels',
             stylers: [
-                { visibility: 'off' }
+                {visibility: 'off'}
             ]
         },
         {
             featureType: 'water',
             stylers: [
-                { color: '#000000' }
+                {color: '#000000'}
             ]
         }
     ];
@@ -62,7 +61,7 @@ function processStory(data)
 
     //Draw location marker
     var marker = new google.maps.Marker({
-        position: new google.maps.LatLng(data.location.lat, data.location.long),
+        position: new google.maps.LatLng(data.player.lat, data.player.long),
         map: map,
         title: 'You'
     });
@@ -76,15 +75,15 @@ function processStory(data)
         fillOpacity: 0.35,
         map: map,
         bounds: new google.maps.LatLngBounds(
-            new google.maps.LatLng(data['location_bounds'][0]['lat'], data['location_bounds'][0]['long']),
-            new google.maps.LatLng(data['location_bounds'][1]['lat'], data['location_bounds'][1]['long']))
+            new google.maps.LatLng(data['area']['location_bounds'][0]['lat'], data['area']['location_bounds'][0]['long']),
+            new google.maps.LatLng(data['area']['location_bounds'][1]['lat'], data['area']['location_bounds'][1]['long']))
     });
     map.setCenter(rectangle.getBounds().getCenter());
 
     // Draw zone info
     var infowindow = new google.maps.InfoWindow({
-        content: '<span class="mapInfoText">' + data['locationName'] + '</span>',
-        position : new google.maps.LatLng(
+        content: '<span class="mapInfoText">' + data['area']['locationName'] + '</span>',
+        position: new google.maps.LatLng(
             rectangle.getBounds().getNorthEast().lat(),
             rectangle.getBounds().getCenter().lng()
         )
@@ -96,8 +95,7 @@ function processStory(data)
  * Display the provided error text in an alert on the page.
  * @param error_text
  */
-function displayError(error_text)
-{
+function displayError(error_text) {
     $('#p_loadingSpinner').addClass('hidden');
     $("<div class='alert alert-danger' role='alert'>" + error_text + "</div>").appendTo('#div_errors');
 }
@@ -107,7 +105,7 @@ $(function () {
         displayError("Geolocation is not supported by your browser.");
     }
 
-    $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+    $(document).ajaxError(function (event, jqXHR, ajaxSettings, thrownError) {
         displayError("Encountered some interference: " + thrownError);
     });
 
@@ -117,12 +115,12 @@ $(function () {
 
         navigator.geolocation.getCurrentPosition(
             function success(position) {
-                $.get('/location/' + position.coords.latitude + '/' + position.coords.longitude)
+                $.get('/location', {latitude: position.coords.latitude, longitude: position.coords.longitude})
                     .done(processStory)
                 ;
             },
             function error() {
-                $.get('/location/51.4623428/-0.1759524')
+                $.get('/location', {latitude: 51.4623428, longitude: -0.1759524})
                     .done(processStory)
                 ;
             },

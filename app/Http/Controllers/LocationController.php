@@ -21,9 +21,26 @@ class LocationController extends Controller
         $this->middleware('auth');
     }
 
-    public function getLocation($latitude, $longitude)
+    /**
+     * Get information about the player's current location.
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getLocation(Request $request)
     {
-        $location = Location::getLocationContainingPoint(floatval($latitude), floatval($longitude));
+        $this->validate(
+            $request,
+            [
+                'latitude'  => 'numeric|required|between:-90,90',
+                'longitude' => 'numeric|required|between:-180,180'
+            ]
+        );
+
+        $latitude = floatval($request->input('latitude'));
+        $longitude = floatval($request->input('longitude'));
+
+        $location = Location::getLocationContainingPoint($latitude, $longitude);
 
         return response()->json(
             [
