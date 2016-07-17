@@ -40,11 +40,8 @@
 
                 {{-- Add message form --}}
                 <div id="panel_time" class="panel">
-                    <div class="input-group">
-                        <input type="text" id="input_message" class="form-control" placeholder="Write message...">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" id="btn_etch">Etch</button>
-                        </span>
+                    <div class="panel-body">
+                        <div id="react_messageComposer"></div>
                     </div>
                 </div>
             </div>
@@ -58,8 +55,18 @@
 
 
 @section('scripts')
+
     <!-- JS libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.1/react-with-addons.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.1/react-dom.min.js" crossorigin="anonymous"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyD5WmIuY8JHfodthQ6evZDsmUYJbG2NttA"></script>
+
+    <!-- Exported data -->
+    <script type="application/javascript">
+        var message_grammar = {!! file_get_contents(base_path('/resources/assets/json/message_grammar.json')) !!};
+    </script>
+
     <!-- Page scripts -->
     <script src="{{ elixir('js/app.js') }}"></script>
+
 @endsection

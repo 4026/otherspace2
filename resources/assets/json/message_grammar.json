@@ -1,6 +1,9 @@
 {
   "clauses": [
     "____",
+    "____!",
+    "____?",
+    "____...",
     "____ nearby",
     "be wary of ____",
     "amazing ____",
@@ -21,12 +24,6 @@
     " for ",
     ", in short: ",
     "; "
-  ],
-  "terminators": [
-    ".",
-    "!",
-    "?",
-    "..."
   ],
   "words": {
     "Characters": [

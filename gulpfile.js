@@ -11,10 +11,17 @@ var elixir = require('laravel-elixir');
  |
  */
 
-elixir(function(mix) {
-    mix.styles('app.css');
-
-    mix.scripts('app.js');
-
-    mix.version(['css/app.css', 'js/app.js']);
+elixir(function (mix) {
+    mix
+        .styles(['app.css'])
+        .babel([
+                'utils.js',
+                'app.js',
+                'SetStateInDepthMixin.jsx',
+                'app.jsx'
+            ],
+            'public/js/app.js'
+        )
+        .version(['css/app.css', 'js/app.js'])
+    ;
 });

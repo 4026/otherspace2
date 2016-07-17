@@ -153,6 +153,44 @@ function displayError(error_text) {
     $("<div class='alert alert-danger' role='alert'>" + error_text + "</div>").appendTo('#div_errors');
 }
 
+/**
+ * Get the text of a message clause from the object describing its structure.
+ * @param clause
+ * @returns {string}
+ */
+function getClauseText(clause) {
+    var clause_text = window.message_grammar.clauses[clause.type];
+    if (clause.word_list != null && clause.word != null) {
+        clause_text = clause_text.replace('____', window.message_grammar.words[clause.word_list][clause.word]);
+    }
+    return clause_text;
+}
+
+/**
+ * Get the text of a message from the object describing its structure.
+ * @param message
+ * @returns {string}
+ */
+function getMessageText(message) {
+    var message_text = "";
+
+    if (message.clause_1.type != null) {
+        message_text += getClauseText(message.clause_1);
+    }
+    if (message.conjunction != null) {
+        message_text += window.message_grammar.conjunctions[message.conjunction];
+    }
+    if (message.clause_2.type != null) {
+        message_text += getClauseText(message.clause_2);
+    }
+
+    return message_text.ucfirst();
+}
+
+
+/**
+ * document.ready functions.
+ */
 $(function () {
     //Check for geolocation functionality.
     if (!navigator.geolocation) {
