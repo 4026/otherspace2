@@ -4,7 +4,7 @@
 <div class="container">
 
     <div class="text-center" style="padding: 40px 0;">
-        <button type="button" id="button_scan" class="btn btn-primary btn-lg">
+        <button type="button" id="btn_scan" class="btn btn-primary btn-lg">
             <span class="glyphicon glyphicon-dashboard"></span>
             Scan the otherspace
         </button>
@@ -17,20 +17,34 @@
     <div id="div_output" class="hidden">
         <div class="row">
             <div class="col-md-6">
+                {{-- Area text panel --}}
                 <div id="panel_location" class="panel">
                     <div class="panel-body">
                     </div>
                 </div>
 
+                {{-- Time text panel --}}
                 <div id="panel_time" class="panel">
                     <div class="panel-body">
                     </div>
                 </div>
             </div>
+
             <div class="col-md-6">
+                {{-- Map canvas --}}
                 <div id="panel_map" class="panel">
                     <div class="panel-body">
                         <div id="map-canvas" style="height: 400px;"></div>
+                    </div>
+                </div>
+
+                {{-- Add message form --}}
+                <div id="panel_time" class="panel">
+                    <div class="input-group">
+                        <input type="text" id="input_message" class="form-control" placeholder="Write message...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btn_etch">Etch</button>
+                        </span>
                     </div>
                 </div>
             </div>

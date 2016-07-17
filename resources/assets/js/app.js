@@ -5,6 +5,43 @@
 var MAPTYPE_ID = 'otherspace_style';
 
 /**
+ * Update the app display based on the player's current location.
+ */
+function updateLocation() {
+    $('#p_loadingSpinner').removeClass('hidden');
+    $('#div_output').addClass('hidden');
+
+    navigator.geolocation.getCurrentPosition(
+        function success(position) {
+            $.get('/location', {latitude: position.coords.latitude, longitude: position.coords.longitude})
+                .done(processStory)
+            ;
+        },
+        function error() {
+            $.get('/location', {latitude: 51.4623428, longitude: -0.1759524})
+                .done(processStory)
+            ;
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 10000,
+            timeout: 10000
+        }
+    );
+}
+
+function attachMessage(message_text, message_marker, map) {
+    var message_info = new google.maps.InfoWindow({
+        content: '<span class="mapInfoText">' + message_text + '</span>'
+    });
+
+    message_marker.addListener('click', function () {
+        message_info.open(map, message_marker);
+    });
+}
+
+
+/**
  * Process story data returned from the server.
  * @param data
  */
@@ -60,7 +97,7 @@ function processStory(data) {
     map.mapTypes.set(MAPTYPE_ID, customMapType);
 
     //Draw location marker
-    var marker = new google.maps.Marker({
+    var player_marker = new google.maps.Marker({
         position: new google.maps.LatLng(data.player.lat, data.player.long),
         map: map,
         title: 'You'
@@ -81,14 +118,30 @@ function processStory(data) {
     map.setCenter(rectangle.getBounds().getCenter());
 
     // Draw zone info
-    var infowindow = new google.maps.InfoWindow({
+    var area_info = new google.maps.InfoWindow({
         content: '<span class="mapInfoText">' + data['area']['locationName'] + '</span>',
         position: new google.maps.LatLng(
             rectangle.getBounds().getNorthEast().lat(),
             rectangle.getBounds().getCenter().lng()
         )
     });
-    infowindow.open(map);
+    area_info.open(map);
+
+    //Add message markers
+    for(var i = 0; i < data.area.messages.length; ++i) {
+        var message = data.area.messages[i];
+        var message_marker = new google.maps.Marker({
+            position: new google.maps.LatLng(message.latitude, message.longitude),
+            map: map,
+            title: 'Message',
+            icon: {
+                url: 'https://files.4026.me.uk/otherspace/marker-icons/message.png',
+                anchor: new google.maps.Point(16, 16)
+            }
+        });
+
+        attachMessage(message.body_text, message_marker, map);
+    }
 }
 
 /**
@@ -101,27 +154,39 @@ function displayError(error_text) {
 }
 
 $(function () {
+    //Check for geolocation functionality.
     if (!navigator.geolocation) {
         displayError("Geolocation is not supported by your browser.");
     }
+
+    //Set up ajax options and error handling.
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
 
     $(document).ajaxError(function (event, jqXHR, ajaxSettings, thrownError) {
         displayError("Encountered some interference: " + thrownError);
     });
 
-    $('#button_scan').click(function () {
-        $('#p_loadingSpinner').removeClass('hidden');
-        $('#div_output').addClass('hidden');
+
+    //Bind button events.
+    $('#btn_scan').click(updateLocation);
+
+
+    $('#btn_etch').click(function () {
+        var message = $('#input_message').val();
 
         navigator.geolocation.getCurrentPosition(
             function success(position) {
-                $.get('/location', {latitude: position.coords.latitude, longitude: position.coords.longitude})
-                    .done(processStory)
-                ;
+                var data = {latitude: position.coords.latitude, longitude: position.coords.longitude, message: message};
+                $.post('/message', data)
+                    .done(updateLocation);
             },
             function error() {
-                $.get('/location', {latitude: 51.4623428, longitude: -0.1759524})
-                    .done(processStory)
+                $.post('/message', {latitude: 51.4623428, longitude: -0.1759524, message: message})
+                    .done(updateLocation)
                 ;
             },
             {
@@ -130,7 +195,7 @@ $(function () {
                 timeout: 10000
             }
         );
-    });
 
+    });
 
 });

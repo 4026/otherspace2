@@ -70,3 +70,4 @@ Homestead.json
 .idea
 /public/js/
 /public/css/
+/public/build/

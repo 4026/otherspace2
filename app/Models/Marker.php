@@ -27,5 +27,13 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Marker extends Model
 {
-    //
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'latitude' => 'float',
+        'longitude' => 'float'
+    ];
 }
