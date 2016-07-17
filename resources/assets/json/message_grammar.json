@@ -1,0 +1,99 @@
+{
+  "clauses": [
+    "____",
+    "____ nearby",
+    "be wary of ____",
+    "amazing ____",
+    "avoid ____",
+    "embrace ____",
+    "seek ____",
+    "try ____",
+    "need ____",
+    "no ____",
+    "excessive ____"
+  ],
+  "conjunctions": [
+    " and ",
+    " but ",
+    " then ",
+    " so ",
+    " because ",
+    " for ",
+    ", in short: ",
+    "; "
+  ],
+  "terminators": [
+    ".",
+    "!",
+    "?",
+    "..."
+  ],
+  "words": {
+    "Characters": [
+      "trickster",
+      "sorceror",
+      "liar",
+      "sage",
+      "cultist",
+      "daemon",
+      "ally",
+      "adversary"
+    ],
+    "Objects": [
+      "quill",
+      "focus",
+      "amulet",
+      "key",
+      "potent spell",
+      "nasty trap",
+      "swarm"
+    ],
+    "Actions": [
+      "overreaching",
+      "escaping",
+      "exploring",
+      "searching",
+      "turning back",
+      "divining",
+      "enchanting",
+      "warding",
+      "sealing",
+      "drinking"
+    ],
+    "Directions" : [
+      "North",
+      "South",
+      "East",
+      "West",
+      "left",
+      "right",
+      "up",
+      "down",
+      "forwards",
+      "backwards"
+    ],
+    "Concepts": [
+      "greetings",
+      "fortune",
+      "danger",
+      "chance",
+      "hint",
+      "secret",
+      "joy",
+      "sorrow",
+      "guidance",
+      "life",
+      "death",
+      "elation",
+      "grief",
+      "hope",
+      "despair",
+      "light",
+      "darkness",
+      "bravery",
+      "resignation",
+      "comfort",
+      "tears"
+    ]
+  }
+}
