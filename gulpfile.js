@@ -13,8 +13,12 @@ var elixir = require('laravel-elixir');
 
 elixir(function (mix) {
     mix
-        .styles(['app.css'])
-        .babel([
+        .styles(
+            ['app.css'],
+            'public/css/app.js'
+        )
+        .babel(
+            [
                 'utils.js',
                 'app.js',
                 'SetStateInDepthMixin.jsx',
