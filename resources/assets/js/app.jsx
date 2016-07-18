@@ -136,7 +136,7 @@ var MessageComposer = React.createClass({
         }
     },
     finishClicked: function() {
-        var message = getMessageText(this.state.message);
+        var message = this.state.message;
 
         navigator.geolocation.getCurrentPosition(
             function success(position) {

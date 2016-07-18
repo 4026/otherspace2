@@ -20,8 +20,8 @@ class CreateMarkersTable extends Migration
             $table->decimal('longitude', 8, 5);
             $table->timestamps();
 
-            $table->foreign('location_id')->references('id')->on('locations');
-            $table->foreign('creator_id')->references('id')->on('users');
+            $table->foreign('location_id')->references('id')->on('locations')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('creator_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

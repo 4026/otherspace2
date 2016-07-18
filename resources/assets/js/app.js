@@ -129,9 +129,10 @@ function processStory(data) {
 
     //Add message markers
     for(var i = 0; i < data.area.messages.length; ++i) {
-        var message = data.area.messages[i];
+        var message = data.area.messages[i].message;
+        var position = data.area.messages[i].position;
         var message_marker = new google.maps.Marker({
-            position: new google.maps.LatLng(message.latitude, message.longitude),
+            position: new google.maps.LatLng(position.latitude, position.longitude),
             map: map,
             title: 'Message',
             icon: {
@@ -140,7 +141,7 @@ function processStory(data) {
             }
         });
 
-        attachMessage(message.body_text, message_marker, map);
+        attachMessage(getMessageText(message), message_marker, map);
     }
 }
 
@@ -211,29 +212,5 @@ $(function () {
 
     //Bind button events.
     $('#btn_scan').click(updateLocation);
-
-
-    $('#btn_etch').click(function () {
-        var message = $('#input_message').val();
-
-        navigator.geolocation.getCurrentPosition(
-            function success(position) {
-                var data = {latitude: position.coords.latitude, longitude: position.coords.longitude, message: message};
-                $.post('/message', data)
-                    .done(updateLocation);
-            },
-            function error() {
-                $.post('/message', {latitude: 51.4623428, longitude: -0.1759524, message: message})
-                    .done(updateLocation)
-                ;
-            },
-            {
-                enableHighAccuracy: true,
-                maximumAge: 10000,
-                timeout: 10000
-            }
-        );
-
-    });
 
 });
