@@ -15,7 +15,7 @@ elixir(function (mix) {
     mix
         .styles(
             ['app.css'],
-            'public/css/app.js'
+            'public/css/app.css'
         )
         .babel(
             [
