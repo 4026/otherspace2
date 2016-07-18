@@ -2,6 +2,7 @@
 
 namespace OtherSpace2\Models;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property float $longitude
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Marker whereLatitude($value)
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Marker whereLongitude($value)
+ * @property-read \OtherSpace2\Models\Message $message
+ * @property-read \OtherSpace2\Models\User $creator
  */
 class Marker extends Model
 {
@@ -36,4 +39,22 @@ class Marker extends Model
         'latitude' => 'float',
         'longitude' => 'float'
     ];
+
+    /**
+     * The creator of this marker.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo|Builder
+     */
+    public function creator()
+    {
+        return $this->belongsTo('OtherSpace2\Models\User', 'creator_id');
+    }
+
+    /**
+     * The message associated with this marker (if there is one).
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne|Builder
+     */
+    public function message()
+    {
+        return $this->hasOne('OtherSpace2\Models\Message');
+    }
 }

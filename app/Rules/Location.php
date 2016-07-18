@@ -6,6 +6,7 @@ use Four026\Phable\Grammar;
 use Four026\Phable\Node;
 use Four026\Phable\Trace;
 use OtherSpace2\Models\Location as LocationModel;
+use OtherSpace2\Models\Marker;
 
 class Location implements \JsonSerializable
 {
@@ -84,7 +85,7 @@ class Location implements \JsonSerializable
         $location_model->max_longitude = $location_model->min_longitude + $tile_width;
 
         //Determine region name
-        $location_rules = new Location($location_model);
+        $location_rules       = new Location($location_model);
         $location_model->name = $location_rules->getLocationName();
 
         $location_model->save();
@@ -145,21 +146,46 @@ class Location implements \JsonSerializable
      */
     function jsonSerialize()
     {
+        $message_markers    = $this->getMessages();
+        $formatted_messages = [];
+        foreach ($message_markers as $message_marker) {
+            $formatted_messages[] = [
+                'location' => ['lat' => $message_marker->latitude, 'long' => $message_marker->longitude],
+                'author' => $message_marker->creator->name,
+                'message'  => [
+                    'clause_1'    => [
+                        'type'      => $message_marker->message->clause_1_id,
+                        'word_list' => $message_marker->message->clause_1_word_list,
+                        'word'      => $message_marker->message->clause_1_word_id,
+                    ],
+                    'conjunction' => $message_marker->message->conjunction,
+                    'clause_2'    => [
+                        'type'      => $message_marker->message->clause_2_id,
+                        'word_list' => $message_marker->message->clause_2_word_list,
+                        'word'      => $message_marker->message->clause_2_word_id,
+                    ]
+                ]
+            ];
+        }
+
         return [
             'location_bounds' => [
-                ['lat' => floatval($this->model->min_latitude), 'long' => floatval($this->model->min_longitude)],
-                ['lat' => floatval($this->model->max_latitude), 'long' => floatval($this->model->max_longitude)],
+                ['lat' => $this->model->min_latitude, 'long' => $this->model->min_longitude],
+                ['lat' => $this->model->max_latitude, 'long' => $this->model->max_longitude],
             ],
             'locationName'    => $this->getLocationName(),
             'locationText'    => explode("\n\n", $this->getLocationText()),
             'timeText'        => explode("\n\n", $this->getTimeText()),
-            'messages'        => $this->getMessages()
+            'messages'        => $formatted_messages
         ];
     }
 
+    /**
+     * @return Marker[]
+     */
     public function getMessages()
     {
-        return $this->model->markers;
+        return $this->model->markers()->has('message')->with('message')->get();
     }
 
     /**
