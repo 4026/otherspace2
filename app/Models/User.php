@@ -2,6 +2,7 @@
 
 namespace OtherSpace2\Models;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -22,6 +23,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\User whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\User whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\OtherSpace2\Models\Item[] $items
+ * @property-read \Illuminate\Database\Eloquent\Collection|\OtherSpace2\Models\Marker[] $markers
  */
 class User extends Authenticatable
 {
@@ -42,4 +45,22 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * The items that this user owns.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany|Builder
+     */
+    public function items()
+    {
+        return $this->hasMany('OtherSpace2\Models\Item');
+    }
+
+    /**
+     * The markers that this user has placed.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany|Builder
+     */
+    public function markers()
+    {
+        return $this->hasMany('OtherSpace2\Models\Marker', 'creator_id');
+    }
 }
