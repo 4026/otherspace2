@@ -21,10 +21,22 @@ class CreateItemsTables extends Migration
         );
 
         Schema::create(
+            'adjective_groups',
+            function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('name');
+            }
+        );
+
+        Schema::create(
             'adjectives',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('word');
+                $table->integer('group_id')->unsigned();
+
+                $table->foreign('group_id')->references('id')->on('adjective_groups')
+                    ->onUpdate('cascade')->onDelete('cascade');
             }
         );
 
@@ -63,12 +75,12 @@ class CreateItemsTables extends Migration
         );
 
         Schema::create(
-            'adjective_noun',
+            'noun_adjective_group',
             function (Blueprint $table) {
-                $table->integer('adjective_id')->unsigned();
                 $table->integer('noun_id')->unsigned();
+                $table->integer('adjective_group_id')->unsigned();
 
-                $table->foreign('adjective_id')->references('id')->on('adjectives')
+                $table->foreign('adjective_group_id')->references('id')->on('adjective_groups')
                     ->onUpdate('cascade')->onDelete('cascade');
                 $table->foreign('noun_id')->references('id')->on('nouns')
                     ->onUpdate('cascade')->onDelete('cascade');
@@ -105,11 +117,13 @@ class CreateItemsTables extends Migration
         Schema::drop('items');
 
         Schema::drop('noun_tag');
-        Schema::drop('adjective_noun');
+        Schema::drop('noun_adjective_group');
         Schema::drop('nouns');
 
         Schema::drop('adjective_tag');
         Schema::drop('adjectives');
+
+        Schema::drop('adjective_groups');
 
         Schema::drop('tags');
     }

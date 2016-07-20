@@ -11,7 +11,6 @@ use Illuminate\Database\Query\Builder;
  * @property integer $id
  * @property string $word
  * @property-read \Illuminate\Database\Eloquent\Collection|\OtherSpace2\Models\Tag[] $tags
- * @property-read \Illuminate\Database\Eloquent\Collection|\OtherSpace2\Models\Noun[] $nouns
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Adjective whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Adjective whereWord($value)
  * @mixin \Eloquent
@@ -28,11 +27,11 @@ class Adjective extends Model
     }
 
     /**
-     * The nouns that may be paired with this adjective.
+     * The group that this adjective belongs to.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany|Builder
      */
-    public function nouns()
+    public function groups()
     {
-        return $this->belongsToMany('OtherSpace2\Models\Noun');
+        return $this->belongsTo('OtherSpace2\Models\AdjectiveGroup', 'group_id');
     }
 }

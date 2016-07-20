@@ -28,11 +28,11 @@ class Noun extends Model
     }
 
     /**
-     * The adjectives that may be paired with this noun.
+     * The adjective groups that may be paired with this noun.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany|Builder
      */
-    public function adjectives()
+    public function adjective_groups()
     {
-        return $this->belongsToMany('OtherSpace2\Models\Adjective');
+        return $this->belongsToMany('OtherSpace2\Models\AdjectiveGroups', 'noun_adjective_group');
     }
 }
