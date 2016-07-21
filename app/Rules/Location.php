@@ -36,6 +36,19 @@ class Location implements \JsonSerializable
      * @var string
      */
     private $location_name;
+    /**
+     * @var string
+     */
+    private $location_description;
+    /**
+     * @var string
+     */
+    private $time_text;
+    /**
+     * @var array
+     */
+    private $item_markers;
+
 
     public function __construct(LocationModel $model)
     {
@@ -48,9 +61,13 @@ class Location implements \JsonSerializable
         );
         $this->time_seed     = intval(floor(time() / 3600)) + $this->location_seed;
 
-        //Load grammar
+        //Load grammar and generate strings.
         $this->grammar = new Grammar(base_path(self::GRAMMAR_PATH));
-        $this->grammar->addNode('regionName', new Node($this->getLocationName()));
+        $this->generateLocationName();
+        $this->generateLocationDescription();
+        $this->generateTimeText();
+
+        $this->generateItemMarkers();
     }
 
     /**
@@ -61,7 +78,11 @@ class Location implements \JsonSerializable
      */
     public static function getLocationContainingPoint($latitude, $longitude)
     {
-        //Fetch model from the DB...
+        /**
+         * Fetch model from the DB...
+         *
+         * @var LocationModel $location_model
+         */
         $location_model = LocationModel::query()
             ->where('min_latitude', '<=', $latitude)
             ->where('max_latitude', '>', $latitude)
@@ -80,7 +101,7 @@ class Location implements \JsonSerializable
         $location_model->min_latitude = floor($latitude / self::TILE_HEIGHT_DEG) * self::TILE_HEIGHT_DEG;
         $location_model->max_latitude = $location_model->min_latitude + self::TILE_HEIGHT_DEG;
 
-        $tile_width                    = self::getTileWidthAtLatitude($latitude);
+        $tile_width                    = self::getTileWidthAtLatitude($location_model->min_latitude);
         $location_model->min_longitude = floor($longitude / $tile_width) * $tile_width;
         $location_model->max_longitude = $location_model->min_longitude + $tile_width;
 
@@ -98,29 +119,15 @@ class Location implements \JsonSerializable
      */
     public function getLocationName()
     {
-        if (!isset($this->location_name)) {
-            $trace = new Trace($this->grammar);
-            $trace
-                ->setSeed($this->location_seed)
-                ->setStartSymbol('regionNameOrigin');
-
-            $this->location_name = $trace->getText();
-        }
-
         return $this->location_name;
     }
 
     /**
      * @return string
      */
-    public function getLocationText()
+    public function getLocationDescription()
     {
-        $trace = new Trace($this->grammar);
-        $trace
-            ->setSeed($this->location_seed)
-            ->setStartSymbol('locationTextOrigin');
-
-        return $trace->getText();
+        return $this->location_description;
     }
 
     /**
@@ -128,12 +135,7 @@ class Location implements \JsonSerializable
      */
     public function getTimeText()
     {
-        $trace = new Trace($this->grammar);
-        $trace
-            ->setSeed($this->time_seed)
-            ->setStartSymbol('timeOrigin');
-
-        return $trace->getText();
+        return $this->time_text;
     }
 
     /**
@@ -151,7 +153,7 @@ class Location implements \JsonSerializable
         foreach ($message_markers as $message_marker) {
             $formatted_messages[] = [
                 'position' => ['latitude' => $message_marker->latitude, 'longitude' => $message_marker->longitude],
-                'author' => $message_marker->creator->name,
+                'author'   => $message_marker->creator->name,
                 'message'  => [
                     'clause_1'    => [
                         'type'      => $message_marker->message->clause_1_id,
@@ -174,9 +176,10 @@ class Location implements \JsonSerializable
                 ['lat' => $this->model->max_latitude, 'long' => $this->model->max_longitude],
             ],
             'locationName'    => $this->getLocationName(),
-            'locationText'    => explode("\n\n", $this->getLocationText()),
+            'locationText'    => explode("\n\n", $this->getLocationDescription()),
             'timeText'        => explode("\n\n", $this->getTimeText()),
-            'messages'        => $formatted_messages
+            'messages'        => $formatted_messages,
+            'item_markers'    => $this->item_markers
         ];
     }
 
@@ -204,5 +207,63 @@ class Location implements \JsonSerializable
     public static function getTileWidthAtLatitude($latitude)
     {
         return self::TILE_HEIGHT_DEG / cos(deg2rad($latitude));
+    }
+
+    private function generateLocationName()
+    {
+        $trace = new Trace($this->grammar);
+        $trace
+            ->setSeed($this->location_seed)
+            ->setStartSymbol('regionNameOrigin');
+
+        $this->location_name = $trace->getText();
+        $this->grammar->addNode('regionName', new Node($this->getLocationName()));
+    }
+
+    private function generateLocationDescription()
+    {
+        $trace = new Trace($this->grammar);
+        $trace
+            ->setSeed($this->location_seed)
+            ->setStartSymbol('locationTextOrigin');
+
+        $this->location_description = $trace->getText();
+    }
+
+    private function generateTimeText()
+    {
+        $trace = new Trace($this->grammar);
+        $trace
+            ->setSeed($this->time_seed)
+            ->setStartSymbol('timeOrigin');
+
+        $this->time_text = $trace->getText();
+    }
+
+    private function generateItemMarkers()
+    {
+        //Set random seed...
+        mt_srand($this->time_seed);
+
+        $latitude_multiplier = 10 / self::TILE_HEIGHT_DEG;
+        $longitude_multiplier = 10 / self::getTileWidthAtLatitude($this->model->min_latitude);
+
+        $this->item_markers = [];
+        for ($i = 0; $i < 5; ++$i) {
+
+            $latitude  = mt_rand(
+                $this->model->min_latitude * $latitude_multiplier,
+                $this->model->max_latitude * $latitude_multiplier
+            ) / $latitude_multiplier;
+
+            $longitude = mt_rand(
+                $this->model->min_longitude * $longitude_multiplier,
+                $this->model->max_longitude * $longitude_multiplier
+            ) / $longitude_multiplier;
+
+            $this->item_markers[] = ['latitude' => $latitude, 'longitude' => $longitude];
+        }
+
+
     }
 }

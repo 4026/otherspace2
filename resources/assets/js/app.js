@@ -128,9 +128,10 @@ function processStory(data) {
     area_info.open(map);
 
     //Add message markers
-    for(var i = 0; i < data.area.messages.length; ++i) {
+    var i, position;
+    for(i = 0; i < data.area.messages.length; ++i) {
         var message = data.area.messages[i].message;
-        var position = data.area.messages[i].position;
+        position = data.area.messages[i].position;
         var message_marker = new google.maps.Marker({
             position: new google.maps.LatLng(position.latitude, position.longitude),
             map: map,
@@ -142,6 +143,16 @@ function processStory(data) {
         });
 
         attachMessage(getMessageText(message), message_marker, map);
+    }
+
+    //Add item markers
+    for(i = 0; i < data.area.item_markers.length; ++i) {
+        position = data.area.item_markers[i];
+        var item_marker = new google.maps.Marker({
+            position: new google.maps.LatLng(position.latitude, position.longitude),
+            map: map,
+            title: 'Item'
+        });
     }
 }
 
