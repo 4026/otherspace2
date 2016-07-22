@@ -2,18 +2,20 @@
 
 namespace OtherSpace2\Rules;
 
+use Cache;
+use Carbon\Carbon;
 use Four026\Phable\Grammar;
 use Four026\Phable\Node;
 use Four026\Phable\Trace;
+use OtherSpace2\Models\Adjective;
 use OtherSpace2\Models\Location as LocationModel;
 use OtherSpace2\Models\Marker;
+use OtherSpace2\Models\Noun;
+use OtherSpace2\Models\User;
 
 class Location implements \JsonSerializable
 {
     const GRAMMAR_PATH = '/resources/assets/json/grammar.json';
-
-    // The difference in degrees between the latitude of the top of the tile and the bottom of the tile.
-    const TILE_HEIGHT_DEG = 0.005;
 
     /**
      * @var \OtherSpace2\Models\Location
@@ -45,7 +47,7 @@ class Location implements \JsonSerializable
      */
     private $time_text;
     /**
-     * @var array
+     * @var ItemMarker[]
      */
     private $item_markers;
 
@@ -57,7 +59,7 @@ class Location implements \JsonSerializable
         //Calculate location and time seeds
         $this->location_seed = intval(
             (floor($model->min_longitude / self::getTileWidthAtLatitude($model->min_latitude)) % 10000) * 10000
-            + floor($model->min_latitude / self::TILE_HEIGHT_DEG) % 10000
+            + floor($model->min_latitude / config('otherspace.tile_height_deg')) % 10000
         );
         $this->time_seed     = intval(floor(time() / 3600)) + $this->location_seed;
 
@@ -98,8 +100,9 @@ class Location implements \JsonSerializable
         $location_model = new LocationModel();
 
         //Calculate region bounds
-        $location_model->min_latitude = floor($latitude / self::TILE_HEIGHT_DEG) * self::TILE_HEIGHT_DEG;
-        $location_model->max_latitude = $location_model->min_latitude + self::TILE_HEIGHT_DEG;
+        $tile_height_deg              = config('otherspace.tile_height_deg');
+        $location_model->min_latitude = floor($latitude / $tile_height_deg) * $tile_height_deg;
+        $location_model->max_latitude = $location_model->min_latitude + $tile_height_deg;
 
         $tile_width                    = self::getTileWidthAtLatitude($location_model->min_latitude);
         $location_model->min_longitude = floor($longitude / $tile_width) * $tile_width;
@@ -206,7 +209,7 @@ class Location implements \JsonSerializable
      */
     public static function getTileWidthAtLatitude($latitude)
     {
-        return self::TILE_HEIGHT_DEG / cos(deg2rad($latitude));
+        return config('otherspace.tile_height_deg') / cos(deg2rad($latitude));
     }
 
     private function generateLocationName()
@@ -245,25 +248,56 @@ class Location implements \JsonSerializable
         //Set random seed...
         mt_srand($this->time_seed);
 
-        $latitude_multiplier = 10 / self::TILE_HEIGHT_DEG;
-        $longitude_multiplier = 10 / self::getTileWidthAtLatitude($this->model->min_latitude);
+        // mt_rand only generates ints, so choose multipliers for latitude and longitude so that there are 100 possible
+        // locations in the area that an item might appear.
+        $grid_resolution      = config('otherspace.tile_grid_resolution');
+        $latitude_multiplier  = $grid_resolution / config('otherspace.tile_height_deg');
+        $longitude_multiplier = $grid_resolution / self::getTileWidthAtLatitude($this->model->min_latitude);
 
+        $noun_ids      = Cache::rememberForever('noun_ids', function() { return Noun::pluck('id'); });
+        $adjective_ids = Cache::rememberForever('adjective_ids', function() { return Adjective::pluck('id'); });
+
+        $num_markers        = config('otherspace.item_markers_per_tile');
         $this->item_markers = [];
-        for ($i = 0; $i < 5; ++$i) {
+        for ($i = 0; $i < $num_markers; ++$i) {
 
-            $latitude  = mt_rand(
-                $this->model->min_latitude * $latitude_multiplier,
-                $this->model->max_latitude * $latitude_multiplier
-            ) / $latitude_multiplier;
+            $latitude = mt_rand(
+                    $this->model->min_latitude * $latitude_multiplier,
+                    $this->model->max_latitude * $latitude_multiplier
+                ) / $latitude_multiplier;
 
             $longitude = mt_rand(
-                $this->model->min_longitude * $longitude_multiplier,
-                $this->model->max_longitude * $longitude_multiplier
-            ) / $longitude_multiplier;
+                    $this->model->min_longitude * $longitude_multiplier,
+                    $this->model->max_longitude * $longitude_multiplier
+                ) / $longitude_multiplier;
 
-            $this->item_markers[] = ['latitude' => $latitude, 'longitude' => $longitude];
+            $position = new Position($latitude, $longitude);
+
+            $noun_id      = $noun_ids[mt_rand(0, count($noun_ids) - 1)];
+            $adjective_id = $adjective_ids[mt_rand(0, count($adjective_ids) - 1)];
+
+            $this->item_markers[] = new ItemMarker($position, $noun_id, $adjective_id);
+        }
+    }
+
+    public function claimItemMarker(User $user, Position $user_position, $marker_id)
+    {
+        if (!array_key_exists($marker_id, $this->item_markers)) {
+            throw new \InvalidArgumentException("Invalid marker ID $marker_id");
         }
 
+        $cache_key = "tile_{$this->model->id}.marker_$marker_id.user_{$user->id}.claimed";
 
+        //Check that this user has not already collected an item from this marker.
+        if (Cache::get($cache_key)) {
+            abort(422, "Item already picked up...");
+        }
+
+        $this->item_markers[$marker_id]->claimFor($user, $user_position);
+
+        // Log that the user has collected an item from this marker, but expire the key from the cache at the end of
+        // this hour.
+        $expires_at = Carbon::now()->addHour(1)->minute(0)->second(0);
+        Cache::put($cache_key, true, $expires_at);
     }
 }

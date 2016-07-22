@@ -28,6 +28,13 @@ use Illuminate\Database\Query\Builder;
 class Item extends Model
 {
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['adjective_id', 'noun_id'];
+
+    /**
      * The user that owns this item.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo|Builder
      */

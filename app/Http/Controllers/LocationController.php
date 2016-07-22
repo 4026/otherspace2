@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use OtherSpace2\Models\Marker;
 use OtherSpace2\Models\Message;
 use OtherSpace2\Rules\Location;
+use OtherSpace2\Rules\Position;
 
 
 class LocationController extends Controller
@@ -99,5 +100,33 @@ class LocationController extends Controller
         $marker->message()->save($message);
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function claimItemFromMarker(Request $request)
+    {
+        $this->validate(
+            $request,
+            [
+                'latitude'  => 'numeric|required|between:-90,90',
+                'longitude' => 'numeric|required|between:-180,180',
+                'marker_id' => 'numeric|required',
+            ]
+        );
+
+        $user = Auth::user();
+        $user_position = new Position(floatval($request->input('latitude')), floatval($request->input('longitude')));
+
+        //Determine the grid square that this location falls into.
+        $location = Location::getLocationContainingPoint($request->input('latitude'), $request->input('longitude'));
+
+        //Get the item from the marker.
+        $item = $location->claimItemMarker($user, $user_position, $request->input('marker_id'));
+
+        return response()->json(compact('item'));
     }
 }

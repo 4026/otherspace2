@@ -20,3 +20,4 @@ Route::get('/', 'HomeController@index');
 //AJAX calls
 Route::get('/location', 'LocationController@getLocation');
 Route::post('/message', 'LocationController@addMessage');
+Route::post('/claim-item', 'LocationController@claimItemFromMarker');
