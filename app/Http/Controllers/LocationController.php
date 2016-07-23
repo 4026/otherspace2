@@ -92,10 +92,18 @@ class LocationController extends Controller
         $message->clause_1_id        = $request->input('message.clause_1.type');
         $message->clause_1_word_list = $request->input('message.clause_1.word_list');
         $message->clause_1_word_id   = $request->input('message.clause_1.word');
-        $message->conjunction        = $request->input('message.conjunction');
-        $message->clause_2_id        = $request->input('message.clause_2.type');
-        $message->clause_2_word_list = $request->input('message.clause_2.word_list');
-        $message->clause_2_word_id   = $request->input('message.clause_2.word');
+        $message->conjunction        = $request->has('message.conjunction')
+            ? $request->input('message.conjunction')
+            : null;
+        $message->clause_2_id        = $request->has('message.clause_2.type')
+            ? $request->input('message.clause_2.type')
+            : null;
+        $message->clause_2_word_list = $request->has('message.clause_2.word_list')
+            ? $request->input('message.clause_2.word_list')
+            : null;
+        $message->clause_2_word_id   = $request->has('message.clause_2.word')
+            ? $request->input('message.clause_2.word')
+            : null;
 
         $marker->message()->save($message);
 
@@ -118,7 +126,7 @@ class LocationController extends Controller
             ]
         );
 
-        $user = Auth::user();
+        $user          = Auth::user();
         $user_position = new Position(floatval($request->input('latitude')), floatval($request->input('longitude')));
 
         //Determine the grid square that this location falls into.
