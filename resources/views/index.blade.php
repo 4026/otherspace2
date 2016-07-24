@@ -1,54 +1,42 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
 
-    <div class="text-center" style="padding: 40px 0;">
-        <button type="button" id="btn_scan" class="btn btn-primary btn-lg">
-            <span class="glyphicon glyphicon-dashboard"></span>
-            Scan the otherspace
-        </button>
-    </div>
+<div id="map-container">
+    <div id="map-canvas"></div>
+</div>
 
-    <p id="p_loadingSpinner" class="text-center hidden"><img src="img/loading_spinner.gif" /></p>
+<div id="div-errors"></div>
 
-    <div id="div_errors"></div>
+<div class="container-fluid">
 
-    <div id="div_output" class="hidden">
-        <div class="row">
-            <div class="col-md-6">
-                {{-- Area text panel --}}
-                <div id="panel_location" class="panel">
-                    <div class="panel-body">
-                    </div>
+    <div class="row">
+        <div class="col-lg-3 col-lg-offset-0 col-xs-10 col-xs-offset-1">
+            <div id="panel-location" class="panel">
+                <div class="panel-heading">
+                    <span id="region-loading">
+                        <i class="fa fa-spinner fa-pulse fa-fw"></i>
+                        Probing...
+                    </span>
+                    <a id="region-name" role="button" class="hidden" data-toggle="collapse" href="#region-detail">
+                        <i class="fa fa-fw fa-caret-right"></i>
+                        <span></span>
+                    </a>
                 </div>
-
-                {{-- Time text panel --}}
-                <div id="panel_time" class="panel">
+                <div id="region-detail" class="panel-collapse collapse">
                     <div class="panel-body">
-                    </div>
-                </div>
-            </div>
+                        <div id="region-detail-text"></div>
 
-            <div class="col-md-6">
-                {{-- Map canvas --}}
-                <div id="panel_map" class="panel">
-                    <div class="panel-body">
-                        <div id="map-canvas" style="height: 400px;"></div>
-                    </div>
-                </div>
+                        <hr />
 
-                {{-- Add message form --}}
-                <div id="panel_time" class="panel">
-                    <div class="panel-body">
+                        {{-- Add message form --}}
                         <div id="react_messageComposer"></div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
-
-
 
 </div>
 @endsection

@@ -15,8 +15,6 @@ class LocationController extends Controller
 {
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -48,7 +46,7 @@ class LocationController extends Controller
         return response()->json(
             [
                 'player' => ['lat' => $latitude, 'long' => $longitude],
-                'area'   => $location
+                'region'   => $location
             ]
         );
     }

@@ -5,31 +5,25 @@
 var MAPTYPE_ID = 'otherspace_style';
 
 /**
- * Update the app display based on the player's current location.
+ * Update the app display based on the player's current position.
  */
 function updateLocation() {
-    $('#p_loadingSpinner').removeClass('hidden');
-    $('#div_output').addClass('hidden');
+    //Collapse region details
+    $('#region-name').collapse('hide').addClass('hidden');
 
-    navigator.geolocation.getCurrentPosition(
-        function success(position) {
-            $.get('/location', {latitude: position.coords.latitude, longitude: position.coords.longitude})
-                .done(processStory)
-            ;
-        },
-        function error() {
-            $.get('/location', {latitude: 51.4623428, longitude: -0.1759524})
-                .done(processStory)
-            ;
-        },
-        {
-            enableHighAccuracy: true,
-            maximumAge: 10000,
-            timeout: 10000
-        }
-    );
+    //Show loading spinner
+    $('#region-loading').removeClass('hidden');
+
+    var parameters = {latitude: PlayerLocation.instance().latitude, longitude: PlayerLocation.instance().longitude};
+    $.get('/location', parameters).done(processStory);
 }
 
+/**
+ * Attach an InfoWindow that shows on click with the provided text to the provided marker on the provided map.
+ * @param message_text
+ * @param message_marker
+ * @param map
+ */
 function attachMessage(message_text, message_marker, map) {
     var message_info = new google.maps.InfoWindow({
         content: '<span class="mapInfoText">' + message_text + '</span>'
@@ -46,18 +40,19 @@ function attachMessage(message_text, message_marker, map) {
  * @param data
  */
 function processStory(data) {
-    $('#p_loadingSpinner').addClass('hidden');
-    $('#div_output').removeClass('hidden').hide().fadeIn("slow");
+    //Hide loading spinner
+    $('#region-loading').addClass('hidden');
 
-    var $location_panel_body = $('#panel_location').children('.panel-body').empty();
-    var $time_panel_body = $('#panel_time').children('.panel-body').empty();
+    //Update and show region name
+    $('#region-name')
+        .removeClass('hidden')
+        .children('span')
+        .text(data['region']['locationName']);
 
-    data['area']['locationText'].forEach(function (paragraph) {
+
+    var $location_panel_body = $('#region-detail-text').empty();
+    data['region']['locationText'].forEach(function (paragraph) {
         $('<p>').text(paragraph).appendTo($location_panel_body);
-    });
-
-    data['area']['timeText'].forEach(function (paragraph) {
-        $('<p>').text(paragraph).appendTo($time_panel_body);
     });
 
     //Draw google map
@@ -100,7 +95,11 @@ function processStory(data) {
     var player_marker = new google.maps.Marker({
         position: new google.maps.LatLng(data.player.lat, data.player.long),
         map: map,
-        title: 'You'
+        title: 'You',
+        icon: {
+            url: 'https://files.4026.me.uk/otherspace/marker-icons/player.png',
+            anchor: new google.maps.Point(16, 16)
+        }
     });
 
     //Draw zone rect
@@ -112,26 +111,16 @@ function processStory(data) {
         fillOpacity: 0.35,
         map: map,
         bounds: new google.maps.LatLngBounds(
-            new google.maps.LatLng(data['area']['location_bounds'][0]['lat'], data['area']['location_bounds'][0]['long']),
-            new google.maps.LatLng(data['area']['location_bounds'][1]['lat'], data['area']['location_bounds'][1]['long']))
+            new google.maps.LatLng(data['region']['location_bounds'][0]['lat'], data['region']['location_bounds'][0]['long']),
+            new google.maps.LatLng(data['region']['location_bounds'][1]['lat'], data['region']['location_bounds'][1]['long']))
     });
     map.setCenter(rectangle.getBounds().getCenter());
 
-    // Draw zone info
-    var area_info = new google.maps.InfoWindow({
-        content: '<span class="mapInfoText">' + data['area']['locationName'] + '</span>',
-        position: new google.maps.LatLng(
-            rectangle.getBounds().getNorthEast().lat(),
-            rectangle.getBounds().getCenter().lng()
-        )
-    });
-    area_info.open(map);
-
     //Add message markers
     var i, position;
-    for(i = 0; i < data.area.messages.length; ++i) {
-        var message = data.area.messages[i].message;
-        position = data.area.messages[i].position;
+    for (i = 0; i < data.region.messages.length; ++i) {
+        var message = data.region.messages[i].message;
+        position = data.region.messages[i].position;
         var message_marker = new google.maps.Marker({
             position: new google.maps.LatLng(position.latitude, position.longitude),
             map: map,
@@ -146,12 +135,16 @@ function processStory(data) {
     }
 
     //Add item markers
-    for(i = 0; i < data.area.item_markers.length; ++i) {
-        position = data.area.item_markers[i];
+    for (i = 0; i < data.region.item_markers.length; ++i) {
+        position = data.region.item_markers[i].position;
         var item_marker = new google.maps.Marker({
             position: new google.maps.LatLng(position.latitude, position.longitude),
             map: map,
-            title: 'Item'
+            title: 'Item',
+            icon: {
+                url: 'https://files.4026.me.uk/otherspace/marker-icons/item.png',
+                anchor: new google.maps.Point(16, 16)
+            }
         });
     }
 }
@@ -161,8 +154,12 @@ function processStory(data) {
  * @param error_text
  */
 function displayError(error_text) {
-    $('#p_loadingSpinner').addClass('hidden');
-    $("<div class='alert alert-danger' role='alert'>" + error_text + "</div>").appendTo('#div_errors');
+    $("<div class='alert alert-danger' role='alert'>" + error_text + "</div>")
+        .appendTo('#div-errors')
+        .delay(5000)
+        .fadeOut(function () {
+            $(this).remove();
+        });
 }
 
 /**
@@ -220,8 +217,15 @@ $(function () {
         displayError("Encountered some interference: " + thrownError);
     });
 
+    //Start watching the player's location.
+    PlayerLocation.instance().startTracking(updateLocation);
 
-    //Bind button events.
-    $('#btn_scan').click(updateLocation);
-
+    //Bind an event that changes the caret icon on the region name when the region description is shown or hidden.
+    $('#region-detail')
+        .on('show.bs.collapse', function () {
+            $('#region-name').children('i').removeClass('fa-caret-right').addClass('fa-caret-down');
+        })
+        .on('hide.bs.collapse', function () {
+            $('#region-name').children('i').removeClass('fa-caret-down').addClass('fa-caret-right');
+        });
 });

@@ -20,6 +20,7 @@ elixir(function (mix) {
         .babel(
             [
                 'utils.js',
+                'PlayerLocation.js',
                 'app.js',
                 'SetStateInDepthMixin.jsx',
                 'app.jsx'

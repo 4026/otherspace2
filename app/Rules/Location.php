@@ -155,7 +155,7 @@ class Location implements \JsonSerializable
         $formatted_messages = [];
         foreach ($message_markers as $message_marker) {
             $formatted_messages[] = [
-                'position' => ['latitude' => $message_marker->latitude, 'longitude' => $message_marker->longitude],
+                'position' => new Position($message_marker->latitude, $message_marker->longitude),
                 'author'   => $message_marker->creator->name,
                 'message'  => [
                     'clause_1'    => [

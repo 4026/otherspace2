@@ -67,28 +67,29 @@ var MessageComposer = React.createClass({
             );
         }
 
+        var message_text = getMessageText(this.state.message);
+        if (message_text == '') {
+            message_text = "Select a message format:";
+        }
+
         return (
             <div>
-                <div className="input-group">
-                    <span className="input-group-btn">
-                        <button type="button" className="btn btn-default" onClick={this.backClicked}>
-                            Back
-                        </button>
-                    </span>
-
-                    <input type="text" className="form-control" placeholder="Message" readonly="readonly"
-                        value={ getMessageText(this.state.message) } />
-
-                    <span className="input-group-btn">
-                        <button className="btn btn-success pull-right" disabled={!can_finish} onClick={this.finishClicked}>
-                            Done
-                        </button>
-                    </span>
+                <div className="well text-warning">
+                    { message_text }
                 </div>
 
                 <div className="list-group" style={{maxHeight: 220, 'overflow-y': 'auto'}}>
                     {options_list}
                 </div>
+
+                <button className="btn btn-success pull-right" disabled={!can_finish} onClick={this.finishClicked}>
+                    <i className="fa fa-pencil-square-o" />
+                    Done
+                </button>
+
+                <button type="button" className="btn btn-default" onClick={this.backClicked}>
+                    Back
+                </button>
             </div>
         );
     },
@@ -136,31 +137,17 @@ var MessageComposer = React.createClass({
         }
     },
     finishClicked: function() {
-        var message = this.state.message;
+        var parameters = {
+            latitude: PlayerLocation.instance().latitude,
+            longitude: PlayerLocation.instance().longitude,
+            message: this.state.message
+        };
+        $.post('/message', parameters)
+            .done(function() {
+                this.setState(this.getInitialState());
+                updateLocation();
+            }.bind(this));
 
-        navigator.geolocation.getCurrentPosition(
-            function success(position) {
-                var data = {latitude: position.coords.latitude, longitude: position.coords.longitude, message: message};
-                $.post('/message', data)
-                    .done(function() {
-                        this.setStateInDepth({editing : {$set : false}});
-                        updateLocation();
-                    }.bind(this));
-            }.bind(this),
-            function error() {
-                $.post('/message', {latitude: 51.4627428, longitude: -0.1759524, message: message})
-                    .done(function() {
-                        this.setStateInDepth({editing : {$set : false}});
-                        updateLocation();
-                    }.bind(this))
-                ;
-            }.bind(this),
-            {
-                enableHighAccuracy: true,
-                maximumAge: 10000,
-                timeout: 10000
-            }
-        );
     }
 });
 
