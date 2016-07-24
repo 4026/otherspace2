@@ -57,7 +57,7 @@ function processStory(data) {
 
     //Draw google map
     var map = new google.maps.Map(document.getElementById('map-canvas'), {
-        zoom: 15,
+        zoom: 16,
         center: {lat: data.player.lat, lng: data.player.long},
         mapTypeControl: false,
         mapTypeControlOptions: {mapTypeIds: [MAPTYPE_ID]},

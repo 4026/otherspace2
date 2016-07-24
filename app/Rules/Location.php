@@ -251,25 +251,27 @@ class Location implements \JsonSerializable
         // mt_rand only generates ints, so choose multipliers for latitude and longitude so that there are 100 possible
         // locations in the area that an item might appear.
         $grid_resolution      = config('otherspace.tile_grid_resolution');
-        $latitude_multiplier  = $grid_resolution / config('otherspace.tile_height_deg');
-        $longitude_multiplier = $grid_resolution / self::getTileWidthAtLatitude($this->model->min_latitude);
+        $latitude_increment  = ($this->model->max_latitude - $this->model->min_latitude) / $grid_resolution;
+        $longitude_increment = ($this->model->max_longitude - $this->model->min_longitude) / $grid_resolution;
 
-        $noun_ids      = Cache::rememberForever('noun_ids', function() { return Noun::pluck('id'); });
-        $adjective_ids = Cache::rememberForever('adjective_ids', function() { return Adjective::pluck('id'); });
+        $noun_ids      = Cache::rememberForever(
+            'noun_ids',
+            function () {
+                return Noun::pluck('id');
+            }
+        );
+        $adjective_ids = Cache::rememberForever(
+            'adjective_ids',
+            function () {
+                return Adjective::pluck('id');
+            }
+        );
 
         $num_markers        = config('otherspace.item_markers_per_tile');
         $this->item_markers = [];
         for ($i = 0; $i < $num_markers; ++$i) {
-
-            $latitude = mt_rand(
-                    $this->model->min_latitude * $latitude_multiplier,
-                    $this->model->max_latitude * $latitude_multiplier
-                ) / $latitude_multiplier;
-
-            $longitude = mt_rand(
-                    $this->model->min_longitude * $longitude_multiplier,
-                    $this->model->max_longitude * $longitude_multiplier
-                ) / $longitude_multiplier;
+            $latitude  = $this->model->min_latitude + (mt_rand(0, $grid_resolution) * $latitude_increment);
+            $longitude = $this->model->min_longitude + (mt_rand(0, $grid_resolution) * $longitude_increment);
 
             $position = new Position($latitude, $longitude);
 
