@@ -52,7 +52,7 @@ class User extends Authenticatable
      */
     public function items()
     {
-        return $this->hasMany('OtherSpace2\Models\Item');
+        return $this->hasMany('OtherSpace2\Models\Item', 'owner_id');
     }
 
     /**

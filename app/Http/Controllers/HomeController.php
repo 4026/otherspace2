@@ -2,8 +2,9 @@
 
 namespace OtherSpace2\Http\Controllers;
 
-use OtherSpace2\Http\Requests;
-use Illuminate\Http\Request;
+use Cache;
+use OtherSpace2\Models\Adjective;
+use OtherSpace2\Models\Noun;
 
 class HomeController extends Controller
 {
@@ -24,6 +25,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('index');
+        $nouns      = Cache::rememberForever('nouns', function () { return Noun::pluck('word', 'id'); });
+        $adjectives = Cache::rememberForever('adjectives', function () { return Adjective::pluck('word', 'id'); });
+
+        return view('index', compact('nouns', 'adjectives'));
     }
 }

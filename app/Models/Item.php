@@ -40,7 +40,7 @@ class Item extends Model
      */
     public function owner()
     {
-        return $this->belongsTo('OtherSpace2\Models\User');
+        return $this->belongsTo('OtherSpace2\Models\User', 'owner_id');
     }
 
     /**

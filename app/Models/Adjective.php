@@ -14,6 +14,9 @@ use Illuminate\Database\Query\Builder;
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Adjective whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Adjective whereWord($value)
  * @mixin \Eloquent
+ * @property integer $group_id
+ * @property-read \OtherSpace2\Models\AdjectiveGroup $groups
+ * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Adjective whereGroupId($value)
  */
 class Adjective extends Model
 {

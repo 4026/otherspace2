@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use Four026\Phable\Grammar;
 use Four026\Phable\Node;
 use Four026\Phable\Trace;
-use OtherSpace2\Models\Adjective;
 use OtherSpace2\Models\Location as LocationModel;
 use OtherSpace2\Models\Marker;
 use OtherSpace2\Models\Noun;
@@ -212,6 +211,39 @@ class Location implements \JsonSerializable
         return config('otherspace.tile_height_deg') / cos(deg2rad($latitude));
     }
 
+    /**
+     * Claim an item from the specified marker in this region for the specified user at the specified position,
+     * checking that they are permitted to.
+     *
+     * @param User     $user
+     * @param Position $user_position
+     * @param int      $marker_id
+     *
+     * @return \OtherSpace2\Models\Item
+     */
+    public function claimItemMarker(User $user, Position $user_position, $marker_id)
+    {
+        if (!array_key_exists($marker_id, $this->item_markers)) {
+            throw new \InvalidArgumentException("Invalid marker ID $marker_id");
+        }
+
+        $cache_key = "tile_{$this->model->id}.marker_$marker_id.user_{$user->id}.claimed";
+
+        //Check that this user has not already collected an item from this marker.
+        if (Cache::get($cache_key)) {
+            abort(422, "Item already picked up...");
+        }
+
+        $item = $this->item_markers[$marker_id]->claimFor($user, $user_position);
+
+        // Log that the user has collected an item from this marker, but expire the key from the cache at the end of
+        // this hour.
+        $expires_at = Carbon::now()->addHour(1)->minute(0)->second(0);
+        Cache::put($cache_key, true, $expires_at);
+
+        return $item;
+    }
+
     private function generateLocationName()
     {
         $trace = new Trace($this->grammar);
@@ -250,22 +282,11 @@ class Location implements \JsonSerializable
 
         // mt_rand only generates ints, so choose multipliers for latitude and longitude so that there are 100 possible
         // locations in the area that an item might appear.
-        $grid_resolution      = config('otherspace.tile_grid_resolution');
+        $grid_resolution     = config('otherspace.tile_grid_resolution');
         $latitude_increment  = ($this->model->max_latitude - $this->model->min_latitude) / $grid_resolution;
         $longitude_increment = ($this->model->max_longitude - $this->model->min_longitude) / $grid_resolution;
 
-        $noun_ids      = Cache::rememberForever(
-            'noun_ids',
-            function () {
-                return Noun::pluck('id');
-            }
-        );
-        $adjective_ids = Cache::rememberForever(
-            'adjective_ids',
-            function () {
-                return Adjective::pluck('id');
-            }
-        );
+        $noun_ids = Cache::rememberForever('noun_ids', function () { return Noun::pluck('id'); });
 
         $num_markers        = config('otherspace.item_markers_per_tile');
         $this->item_markers = [];
@@ -275,31 +296,23 @@ class Location implements \JsonSerializable
 
             $position = new Position($latitude, $longitude);
 
-            $noun_id      = $noun_ids[mt_rand(0, count($noun_ids) - 1)];
-            $adjective_id = $adjective_ids[mt_rand(0, count($adjective_ids) - 1)];
+            //Choose a random noun.
+            $noun_id = $noun_ids[mt_rand(0, count($noun_ids) - 1)];
+            $noun    = Noun::with('adjective_groups.adjectives')->find($noun_id);
 
-            $this->item_markers[] = new ItemMarker($position, $noun_id, $adjective_id);
+            //Build a list of permitted adjective IDs for that noun.
+            $permitted_adjectives = [];
+            foreach ($noun->adjective_groups as $permitted_adjective_group) {
+                foreach ($permitted_adjective_group->adjectives as $adjective) {
+                    $permitted_adjectives[] = $adjective->id;
+                }
+            }
+            $permitted_adjectives = array_unique($permitted_adjectives);
+
+            //Choose a random adjective.
+            $adjective_id = $permitted_adjectives[mt_rand(0, count($permitted_adjectives) - 1)];
+
+            $this->item_markers[] = new ItemMarker($position, $adjective_id, $noun_id);
         }
-    }
-
-    public function claimItemMarker(User $user, Position $user_position, $marker_id)
-    {
-        if (!array_key_exists($marker_id, $this->item_markers)) {
-            throw new \InvalidArgumentException("Invalid marker ID $marker_id");
-        }
-
-        $cache_key = "tile_{$this->model->id}.marker_$marker_id.user_{$user->id}.claimed";
-
-        //Check that this user has not already collected an item from this marker.
-        if (Cache::get($cache_key)) {
-            abort(422, "Item already picked up...");
-        }
-
-        $this->item_markers[$marker_id]->claimFor($user, $user_position);
-
-        // Log that the user has collected an item from this marker, but expire the key from the cache at the end of
-        // this hour.
-        $expires_at = Carbon::now()->addHour(1)->minute(0)->second(0);
-        Cache::put($cache_key, true, $expires_at);
     }
 }

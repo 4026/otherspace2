@@ -144,7 +144,23 @@ function processStory(data) {
             icon: {
                 url: 'https://files.4026.me.uk/otherspace/marker-icons/item.png',
                 anchor: new google.maps.Point(16, 16)
-            }
+            },
+            item_marker_id: i
+        });
+
+        item_marker.addListener('click', function () {
+            var parameters = {
+                latitude: PlayerLocation.instance().latitude,
+                longitude: PlayerLocation.instance().longitude,
+                marker_id: this.item_marker_id
+            };
+            var marker = this;
+
+            $.post('/claim-item', parameters)
+                .done(function(data) {
+                    alert(window.adjectives[data.item.adjective_id] + " " + window.nouns[data.item.noun_id]);
+                    marker.setMap(null); // Hide the marker
+                });
         });
     }
 }

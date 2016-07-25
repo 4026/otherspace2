@@ -12,7 +12,7 @@ return [
     'tile_grid_resolution' => 10,
 
     // The maximum distance, in km, that a user may from a marker to collect an item from it.
-    'item_marker_collect_radius' => 0.05,
+    'item_marker_collect_radius' => 0.1,
 
     // The number of item markers that should be generated on each map tile.
     'item_markers_per_tile' => 4,

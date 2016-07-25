@@ -15,6 +15,7 @@ use Illuminate\Database\Query\Builder;
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Noun whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\OtherSpace2\Models\Noun whereWord($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\OtherSpace2\Models\AdjectiveGroup[] $adjective_groups
  */
 class Noun extends Model
 {
@@ -33,6 +34,6 @@ class Noun extends Model
      */
     public function adjective_groups()
     {
-        return $this->belongsToMany('OtherSpace2\Models\AdjectiveGroups', 'noun_adjective_group');
+        return $this->belongsToMany('OtherSpace2\Models\AdjectiveGroup', 'noun_adjective_group');
     }
 }
