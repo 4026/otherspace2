@@ -133,6 +133,6 @@ class LocationController extends Controller
         //Get the item from the marker.
         $item = $location->claimItemMarker($user, $user_position, $request->input('marker_id'));
 
-        return response()->json(compact('item'));
+        return response()->json(['item' => $item]);
     }
 }

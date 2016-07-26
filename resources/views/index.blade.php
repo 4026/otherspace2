@@ -51,9 +51,7 @@
 
     <!-- Exported data -->
     <script type="application/javascript">
-        var message_grammar = {!! file_get_contents(base_path('/resources/assets/json/message_grammar.json')) !!};
-        var nouns = {!! json_encode($nouns) !!};
-        var adjectives = {!! json_encode($adjectives) !!};
+        var environment = {!! json_encode($js_environment) !!};
     </script>
 
     <!-- Page scripts -->

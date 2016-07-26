@@ -91,15 +91,27 @@ function processStory(data) {
     var customMapType = new google.maps.StyledMapType(featureOpts, styledMapOptions);
     map.mapTypes.set(MAPTYPE_ID, customMapType);
 
-    //Draw location marker
+    //Draw player location marker
     var player_marker = new google.maps.Marker({
-        position: new google.maps.LatLng(data.player.lat, data.player.long),
+        position: PlayerLocation.instance().asLatLng(),
         map: map,
         title: 'You',
         icon: {
             url: 'https://files.4026.me.uk/otherspace/marker-icons/player.png',
             anchor: new google.maps.Point(16, 16)
         }
+    });
+
+    //Draw player interaction circle
+    var player_circle = new google.maps.Circle({
+        strokeColor: '#FFFFFF',
+        strokeOpacity: 0.8,
+        strokeWeight: 1,
+        fillColor: '#FFFFFF',
+        fillOpacity: 0.35,
+        map: map,
+        center: PlayerLocation.instance().asLatLng(),
+        radius: window.environment.item_marker_collect_radius
     });
 
     //Draw zone rect
@@ -158,7 +170,7 @@ function processStory(data) {
 
             $.post('/claim-item', parameters)
                 .done(function(data) {
-                    alert(window.adjectives[data.item.adjective_id] + " " + window.nouns[data.item.noun_id]);
+                    alert(data.item.display_name);
                     marker.setMap(null); // Hide the marker
                 });
         });
@@ -184,9 +196,12 @@ function displayError(error_text) {
  * @returns {string}
  */
 function getClauseText(clause) {
-    var clause_text = window.message_grammar.clauses[clause.type];
+    var clause_text = window.environment.message_grammar.clauses[clause.type];
     if (clause.word_list != null && clause.word != null) {
-        clause_text = clause_text.replace('____', window.message_grammar.words[clause.word_list][clause.word]);
+        clause_text = clause_text.replace(
+            '____',
+            window.environment.message_grammar.words[clause.word_list][clause.word]
+        );
     }
     return clause_text;
 }
@@ -203,7 +218,7 @@ function getMessageText(message) {
         message_text += getClauseText(message.clause_1);
     }
     if (message.conjunction != null) {
-        message_text += window.message_grammar.conjunctions[message.conjunction];
+        message_text += window.environment.message_grammar.conjunctions[message.conjunction];
     }
     if (message.clause_2.type != null) {
         message_text += getClauseText(message.clause_2);
