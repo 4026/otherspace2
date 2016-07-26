@@ -15,6 +15,16 @@ function PlayerLocation()
     this.latitude = null;
     this.longitude = null;
 
+    this.previous_position = null;
+
+    /**
+     * Get the player's location a Google Maps LatLng object.
+     * @returns {google.maps.LatLng}
+     */
+    this.asLatLng = function() {
+        return new google.maps.LatLng(this.latitude, this.longitude);
+    };
+
     /**
      * Set the location values in this instance.
      * @param latitude
@@ -32,7 +42,14 @@ function PlayerLocation()
      */
     this.onPositionUpdate = function(positionUpdateCallback, position) {
         this.set(position.coords.latitude, position.coords.longitude);
-        positionUpdateCallback();
+
+        // Only trigger the callback function if the player's location has changed significantly since it was last run.
+        if (this.previous_position == null
+            || google.maps.geometry.spherical.computeDistanceBetween(this.previous_position, this.asLatLng()) > 20) {
+
+            this.previous_position = this.asLatLng();
+            positionUpdateCallback();
+        }
     };
 
     /**
