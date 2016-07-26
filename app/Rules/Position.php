@@ -9,7 +9,7 @@ namespace OtherSpace2\Rules;
  */
 class Position implements \JsonSerializable
 {
-    const EARTH_DIAMETER = 12742; //Kilometers. On average. Roughly.
+    const EARTH_DIAMETER = 12756274; //Metres. On average. Roughly.
 
     public $latitude;
     public $longitude;
@@ -34,7 +34,7 @@ class Position implements \JsonSerializable
     }
 
     /**
-     * Get the distance between this positions and another.
+     * Get the distance, in metres, between this position and another.
      *
      * @param Position $position
      *
@@ -46,7 +46,7 @@ class Position implements \JsonSerializable
     }
 
     /**
-     * Get the distance between two positions, using the Haversine Formula.
+     * Get the distance, in metres, between two positions, using the Haversine Formula.
      * https://en.wikipedia.org/wiki/Haversine_formula
      *
      * @param Position $a
@@ -69,8 +69,8 @@ class Position implements \JsonSerializable
     }
 
     /**
-     * Get the approximate distance between two positions, by assuming that the Earth is flat. Obviously, this works
-     * quite a lot better for small distances than for large ones.
+     * Get the approximate distance, in metres, between two positions, by assuming that the Earth is flat. Obviously,
+     * this works quite a lot better for small distances than for large ones.
      *
      * In theory, this is slightly faster than the Haversine method used for distanceBetween(), but in practice the
      * performance gains seem to be pretty minimal.
@@ -86,9 +86,9 @@ class Position implements \JsonSerializable
     }
 
     /**
-     * Get the approximate distance squared between two positions, by assuming that the Earth is flat. Obviously, this
-     * works quite a lot better for small distances than for large ones. Useful for quickly comparing distances, when
-     * the precise value of the distance isn't important.
+     * Get the approximate distance squared between two positions, by assuming that the Earth is flat.
+     * Obviously, this works quite a lot better for small distances than for large ones. Useful for quickly comparing
+     * distances, when the precise value of the distance isn't important.
      *
      * @param Position $a
      * @param Position $b
