@@ -4,10 +4,17 @@
 
 var MAPTYPE_ID = 'otherspace_style';
 
+var scheduled_location_refresh;
+
 /**
  * Update the app display based on the player's current position.
  */
 function updateLocation() {
+    if (scheduled_location_refresh) {
+        clearTimeout(scheduled_location_refresh);
+        scheduled_location_refresh = null;
+    }
+
     //Collapse region details
     $('#region-name').collapse('hide').addClass('hidden');
 
@@ -16,6 +23,8 @@ function updateLocation() {
 
     var parameters = {latitude: PlayerLocation.instance().latitude, longitude: PlayerLocation.instance().longitude};
     $.get('/location', parameters).done(processStory);
+
+    scheduled_location_refresh = setTimeout(updateLocation, 30000);
 }
 
 /**
