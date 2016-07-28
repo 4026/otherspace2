@@ -37,10 +37,6 @@ class Location implements \JsonSerializable
     /**
      * @var string
      */
-    private $location_name;
-    /**
-     * @var string
-     */
     private $location_description;
     /**
      * @var string
@@ -66,9 +62,11 @@ class Location implements \JsonSerializable
         //Load grammar and generate strings.
         $this->grammar = new Grammar(base_path(self::GRAMMAR_PATH));
 
-        if (!isset($model->name)) {
-            $model->name = $this->generateLocationName();
+        if (empty($model->name)) {
+            $this->generateLocationName();
         }
+        $this->grammar->addNode('regionName', new Node($this->getLocationName()));
+
         $this->generateLocationDescription();
         $this->generateTimeText();
 
@@ -111,7 +109,7 @@ class Location implements \JsonSerializable
         $location_model->min_longitude = floor($longitude / $tile_width) * $tile_width;
         $location_model->max_longitude = $location_model->min_longitude + $tile_width;
 
-        //Determine region name
+        //Generate region data and save model
         $location_rules = new Location($location_model);
         $location_model->save();
 
@@ -123,7 +121,7 @@ class Location implements \JsonSerializable
      */
     public function getLocationName()
     {
-        return $this->location_name;
+        return $this->model->name;
     }
 
     /**
@@ -212,7 +210,7 @@ class Location implements \JsonSerializable
     {
         return array_filter(
             $this->item_markers,
-            function ($marker_id) use ($user) { return $this->userHasClaimedItemMarker($user, $marker_id); },
+            function ($marker_id) use ($user) { return !$this->userHasClaimedItemMarker($user, $marker_id); },
             ARRAY_FILTER_USE_KEY
         );
     }
@@ -286,8 +284,7 @@ class Location implements \JsonSerializable
             ->setSeed($this->location_seed)
             ->setStartSymbol('regionNameOrigin');
 
-        $this->location_name = $trace->getText();
-        $this->grammar->addNode('regionName', new Node($this->getLocationName()));
+        $this->model->name = $trace->getText();
     }
 
     private function generateLocationDescription()

@@ -156,7 +156,11 @@ function processStory(data) {
     }
 
     //Add item markers
-    for (i = 0; i < data.region.item_markers.length; ++i) {
+    for (i in data.region.item_markers) {
+        if (!data.region.item_markers.hasOwnProperty(i)) {
+            continue;
+        }
+
         position = data.region.item_markers[i].position;
         var item_marker = new google.maps.Marker({
             position: new google.maps.LatLng(position.latitude, position.longitude),
