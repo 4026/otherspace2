@@ -23,23 +23,12 @@ class ItemMarker
     }
 
     /**
-     *
      * @param User     $user
-     * @param Position $user_position
      *
      * @return Item
      */
-    public function claimFor(User $user, Position $user_position)
+    public function claimFor(User $user)
     {
-        $marker_distance = $user_position->distanceTo($this->position);
-        $max_distance    = config('otherspace.item_marker_collect_radius');
-        if ($marker_distance > $max_distance) {
-            abort(
-                422,
-                "You are $marker_distance km away from the item marker, the maximum distance is $max_distance km."
-            );
-        }
-
         //Create a new item of the type handed out by this marker, and add it to the user's inventory.
         $item = new Item(['adjective_id' => $this->item_adjective_id,'noun_id' => $this->item_noun_id]);
         $user->items()->save($item);

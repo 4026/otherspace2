@@ -2,6 +2,7 @@
 
 namespace OtherSpace2\Rules;
 
+use Auth;
 use Cache;
 use Carbon\Carbon;
 use Four026\Phable\Grammar;
@@ -64,7 +65,10 @@ class Location implements \JsonSerializable
 
         //Load grammar and generate strings.
         $this->grammar = new Grammar(base_path(self::GRAMMAR_PATH));
-        $this->generateLocationName();
+
+        if (!isset($model->name)) {
+            $model->name = $this->generateLocationName();
+        }
         $this->generateLocationDescription();
         $this->generateTimeText();
 
@@ -108,9 +112,7 @@ class Location implements \JsonSerializable
         $location_model->max_longitude = $location_model->min_longitude + $tile_width;
 
         //Determine region name
-        $location_rules       = new Location($location_model);
-        $location_model->name = $location_rules->getLocationName();
-
+        $location_rules = new Location($location_model);
         $location_model->save();
 
         return $location_rules;
@@ -181,7 +183,7 @@ class Location implements \JsonSerializable
             'locationText'    => explode("\n\n", $this->getLocationDescription()),
             'timeText'        => explode("\n\n", $this->getTimeText()),
             'messages'        => $formatted_messages,
-            'item_markers'    => $this->item_markers
+            'item_markers'    => Auth::check() ? $this->getUnclaimedItemMarkersFor(Auth::user()) : $this->item_markers
         ];
     }
 
@@ -200,6 +202,21 @@ class Location implements \JsonSerializable
     {
         return $this->model;
     }
+
+    /**
+     * @param User $user
+     *
+     * @return ItemMarker[]
+     */
+    public function getUnclaimedItemMarkersFor(User $user)
+    {
+        return array_filter(
+            $this->item_markers,
+            function ($marker_id) use ($user) { return $this->userHasClaimedItemMarker($user, $marker_id); },
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
 
     /**
      * @param $latitude
@@ -227,21 +244,39 @@ class Location implements \JsonSerializable
             throw new \InvalidArgumentException("Invalid marker ID $marker_id");
         }
 
-        $cache_key = "tile_{$this->model->id}.marker_$marker_id.user_{$user->id}.claimed";
-
         //Check that this user has not already collected an item from this marker.
-        if (Cache::get($cache_key)) {
+        if ($this->userHasClaimedItemMarker($user, $marker_id)) {
             abort(422, "Item already picked up...");
         }
 
-        $item = $this->item_markers[$marker_id]->claimFor($user, $user_position);
+        $marker = $this->item_markers[$marker_id];
+
+        //Check that the user is close enough to the marker to claim it.
+        $marker_distance = $user_position->distanceTo($marker->position);
+        $max_distance    = config('otherspace.item_marker_collect_radius');
+        if ($marker_distance > $max_distance) {
+            abort(
+                422,
+                "You are $marker_distance km away from the item marker, the maximum distance is $max_distance km."
+            );
+        }
+
+        // Give the user the item from the marker.
+        $item = $marker->claimFor($user);
 
         // Log that the user has collected an item from this marker, but expire the key from the cache at the end of
         // this hour.
         $expires_at = Carbon::now()->addHour(1)->minute(0)->second(0);
-        Cache::put($cache_key, true, $expires_at);
+        Cache::put($this->getCacheKeyForMarker($user, $marker_id), true, $expires_at);
 
         return $item;
+    }
+
+    public function userHasClaimedItemMarker(User $user, $marker_id)
+    {
+        $cache_key = $this->getCacheKeyForMarker($user, $marker_id);
+
+        return boolval(Cache::get($cache_key));
     }
 
     private function generateLocationName()
@@ -314,5 +349,18 @@ class Location implements \JsonSerializable
 
             $this->item_markers[] = new ItemMarker($position, $adjective_id, $noun_id);
         }
+    }
+
+    /**
+     * @param User $user
+     * @param      $marker_id
+     *
+     * @return string
+     */
+    private function getCacheKeyForMarker(User $user, $marker_id)
+    {
+        $cache_key = "tile_{$this->model->id}.marker_$marker_id.user_{$user->id}.claimed";
+
+        return $cache_key;
     }
 }
