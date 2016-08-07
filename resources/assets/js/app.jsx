@@ -39,20 +39,20 @@ var MessageComposer = React.createClass({
         var current_options = [];
         var can_finish = false;
         if (this.state.message.clause_1.type == null) {
-            current_options = window.message_grammar.clauses;
+            current_options = window.environment.message_grammar.clauses;
         } else if (this.state.message.clause_1.word_list == null) {
-            current_options = Object.getOwnPropertyNames(window.message_grammar.words);
+            current_options = Object.getOwnPropertyNames(window.environment.message_grammar.words);
         } else if (this.state.message.clause_1.word == null) {
-            current_options = window.message_grammar.words[this.state.message.clause_1.word_list];
+            current_options = window.environment.message_grammar.words[this.state.message.clause_1.word_list];
         } else if (this.state.message.conjunction == null) {
-            current_options = window.message_grammar.conjunctions;
+            current_options = window.environment.message_grammar.conjunctions;
             can_finish = true;
         } else if (this.state.message.clause_2.type == null) {
-            current_options = window.message_grammar.clauses;
+            current_options = window.environment.message_grammar.clauses;
         } else if (this.state.message.clause_2.word_list == null) {
-            current_options = Object.getOwnPropertyNames(window.message_grammar.words);
+            current_options = Object.getOwnPropertyNames(window.environment.message_grammar.words);
         } else if (this.state.message.clause_2.word == null) {
-            current_options = window.message_grammar.words[this.state.message.clause_2.word_list];
+            current_options = window.environment.message_grammar.words[this.state.message.clause_2.word_list];
         } else {
             can_finish = true;
         }
@@ -102,7 +102,7 @@ var MessageComposer = React.createClass({
         if (this.state.message.clause_1.type == null) {
             this.setStateInDepth({message : {clause_1 : {type : {$set : option_index}}}});
         } else if (this.state.message.clause_1.word_list == null) {
-            selected_list = Object.getOwnPropertyNames(window.message_grammar.words)[option_index];
+            selected_list = Object.getOwnPropertyNames(window.environment.message_grammar.words)[option_index];
             this.setStateInDepth({message : {clause_1 : {word_list : {$set : selected_list}}}});
         } else if (this.state.message.clause_1.word == null) {
             this.setStateInDepth({message : {clause_1 : {word : {$set : option_index}}}});
@@ -111,7 +111,7 @@ var MessageComposer = React.createClass({
         } else if (this.state.message.clause_2.type == null) {
             this.setStateInDepth({message : {clause_2 : {type : {$set : option_index}}}});
         } else if (this.state.message.clause_2.word_list == null) {
-            selected_list = Object.getOwnPropertyNames(window.message_grammar.words)[option_index];
+            selected_list = Object.getOwnPropertyNames(window.environment.message_grammar.words)[option_index];
             this.setStateInDepth({message : {clause_2 : {word_list : {$set : selected_list}}}});
         } else if (this.state.message.clause_2.word == null) {
             this.setStateInDepth({message : {clause_2 : {word : {$set : option_index}}}});
